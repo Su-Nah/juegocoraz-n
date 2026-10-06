@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+<title>$GODOT_PROJECT_NAME</title>
+<style>
+html, body, #canvas { margin: 0; padding: 0; border: 0; }
+body { color: #ddd; background-color: #15171c; overflow: hidden; touch-action: none; font-family: sans-serif; }
+#canvas { display: block; }
+#canvas:focus { outline: none; }
+#status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+</style>
+$GODOT_HEAD_INCLUDE
+</head>
+<body>
+<canvas id="canvas">Tu navegador no soporta canvas/WebGL.</canvas>
+<div id="status">Cargando…</div>
+
+<!-- =====================================================================
+     HEART RATE WEB BRIDGE  (Web Bluetooth → Godot)
+     Todo el código Web Bluetooth vive aquí, separado de GDScript.
+     Godot lo usa vía JavaScriptBridge.get_interface("HeartRateWebBridge").
+     Privacidad: no hay red, ni analytics, ni almacenamiento. Solo
+     Band 9 → navegador → Godot en memoria.
+     ===================================================================== -->
+<script>
+(function () {
+  'use strict';
+
+  const HR_SERVICE = '0000180d-0000-1000-8000-00805f9b34fb';
+  const HR_MEASUREMENT = '00002a37-0000-1000-8000-00805f9b34fb';
+  // Servicios estándar adicionales que pedimos permiso para LISTAR en diagnóstico.
+  // (Web Bluetooth solo deja ver servicios declarados en filters/optionalServices.)
+  const OPTIONAL_SERVICES = ['battery_service', 'device_information'];
+  const NO_NOTIFY_TIMEOUT_MS = 10000;
+
+  // Códigos de error → significado. Godot los muestra tal cual.
+  const ERR = {
+    NO_WEB_BLUETOOTH:   'El navegador no soporta Web Bluetooth (navigator.bluetooth no existe).',
+    INSECURE_CONTEXT:   'La página no está en un contexto seguro (requiere HTTPS o localhost).',
+    PERMISSIONS_POLICY: 'El navegador soporta Web Bluetooth, pero la Permissions Policy del iframe/página (p.ej. itch.io) NO permite "bluetooth".',
+    ADAPTER_UNAVAILABLE:'Web Bluetooth existe pero no hay adaptador Bluetooth disponible/encendido.',
+    USER_CANCELLED:     'requestDevice() cancelado: el usuario cerró el selector o no se encontró ningún dispositivo compatible.',
+    PERMISSION_DENIED:  'Permiso Bluetooth denegado por el navegador/sistema.',
+    GATT_CONNECT_FAILED:'El dispositivo fue elegido pero falló la conexión GATT.',
+    SERVICE_NOT_FOUND:  'La Band 9 fue encontrada pero NO expone el Heart Rate Service (0x180D). ¿Está activada la "difusión de frecuencia cardíaca" en la pulsera?',
+    CHAR_NOT_FOUND:     'Servicio HR encontrado pero falta la característica Heart Rate Measurement (0x2A37).',
+    NOTIFY_UNAVAILABLE: 'La característica HR no permite / rechazó las notificaciones.',
+    NO_NOTIFICATIONS:   'La conexión funciona pero NO llegan notificaciones de frecuencia cardíaca.',
+    DEVICE_DISCONNECTED:'El dispositivo se desconectó.',
+    UNKNOWN:            'Error desconocido.'
+  };
+
+  let device = null, server = null, characteristic = null;
+  let status = 'disconnected';
+  let manualDisconnect = false;
+  let watchdog = null;
+  let cb = { hr: null, status: null, log: null, diag: null };
+
+  const diag = {
+    web_bluetooth: false, secure_context: window.isSecureContext,
+    in_iframe: false, permissions_policy: 'desconocido',
+    browser: '', status: 'disconnected', device_name: '', device_id: '',
+    services: [], characteristics: [],
+    hr_service: HR_SERVICE, hr_characteristic: HR_MEASUREMENT,
+    notifications: 'no', updates: 0, bpm: null, last_update: '',
+    last_error_code: '', last_error: ''
+  };
+
+  function browserName() {
+    try {
+      if (navigator.userAgentData && navigator.userAgentData.brands) {
+        const b = navigator.userAgentData.brands
+          .filter(x => !/Not.?A.?Brand|Chromium/i.test(x.brand))
+          .map(x => x.brand + ' ' + x.version);
+        if (b.length) return b.join(', ') + (navigator.userAgentData.mobile ? ' (móvil)' : '');
+      }
+    } catch (e) {}
+    const ua = navigator.userAgent;
+    const m = ua.match(/(Edg|OPR|Chrome|Firefox|Version)\/[\d.]+/g);
+    return (m ? m.join(' ') : ua) + (/Safari/.test(ua) && !/Chrome/.test(ua) ? ' (Safari)' : '');
+  }
+
+  function inIframe() { try { return window.self !== window.top; } catch (e) { return true; } }
+
+  function policyAllowsBluetooth() {
+    const p = document.permissionsPolicy || document.featurePolicy;
+    if (!p || typeof p.allowsFeature !== 'function') return null; // no se puede saber
+    try { return p.allowsFeature('bluetooth'); } catch (e) { return null; }
+  }
+
+  function emitDiag() { if (cb.diag) cb.diag(JSON.stringify(diag)); }
+  function log(msg) {
+    const line = new Date().toLocaleTimeString() + '  ' + msg;
+    console.log('[HeartRateWebBridge] ' + msg);
+    if (cb.log) cb.log(line);
+  }
+  function setStatus(s) {
+    status = s; diag.status = s;
+    log('Estado → ' + s);
+    if (cb.status) cb.status(s);
+    emitDiag();
+  }
+  function fail(code, err) {
+    diag.last_error_code = code;
+    diag.last_error = ERR[code] + (err ? '  [' + (err.name || 'Error') + ': ' + (err.message || err) + ']' : '');
+    log('ERROR ' + code + ': ' + diag.last_error);
+    setStatus('error');
+  }
+
+  function classifyRequestError(e) {
+    const msg = (e && e.message) || '';
+    if (e.name === 'SecurityError' || /permissions policy|feature policy|disallowed by permissions/i.test(msg))
+      return 'PERMISSIONS_POLICY';
+    if (e.name === 'NotFoundError') {
+      if (/adapter|Bluetooth.*(not available|unavailable)/i.test(msg)) return 'ADAPTER_UNAVAILABLE';
+      return 'USER_CANCELLED';
+    }
+    if (e.name === 'NotAllowedError') return 'PERMISSION_DENIED';
+    if (e.name === 'NotSupportedError') return 'NO_WEB_BLUETOOTH';
+    return 'UNKNOWN';
+  }
+
+  // ---- Decodificación estándar Heart Rate Measurement (0x2A37) ----
+  // byte0 flags: bit0 = formato (0 → UINT8, 1 → UINT16 LE)
+  function parseHeartRate(dataView) {
+    const flags = dataView.getUint8(0);
+    const is16 = (flags & 0x01) !== 0;
+    const bpm = is16 ? dataView.getUint16(1, true) : dataView.getUint8(1);
+    return { bpm, flags, format: is16 ? 'UINT16' : 'UINT8' };
+  }
+
+  function onHeartRateChanged(event) {
+    const dv = event.target.value;
+    let r;
+    try { r = parseHeartRate(dv); } catch (e) { log('Paquete HR malformado: ' + e); return; }
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+    if (diag.last_error_code === 'NO_NOTIFICATIONS') { diag.last_error_code = ''; diag.last_error = ''; }
+    diag.updates += 1;
+    diag.bpm = r.bpm;
+    diag.last_update = new Date().toISOString();
+    diag.notifications = 'activadas (recibiendo)';
+    if (diag.updates <= 3 || diag.updates % 20 === 0)
+      log('HR #' + diag.updates + ': ' + r.bpm + ' BPM (flags=0x' + r.flags.toString(16) + ', ' + r.format + ')');
+    if (cb.hr) cb.hr(r.bpm, Date.now());
+    emitDiag();
+  }
+
+  function onDisconnected() {
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+    characteristic = null; server = null;
+    diag.notifications = 'no';
+    if (manualDisconnect) { log('Desconectado por el usuario.'); setStatus('disconnected'); }
+    else fail('DEVICE_DISCONNECTED');
+  }
+
+  async function listGatt() {
+    diag.services = []; diag.characteristics = [];
+    try {
+      const services = await server.getPrimaryServices();
+      for (const s of services) {
+        diag.services.push(s.uuid);
+        log('Servicio: ' + s.uuid);
+        try {
+          for (const c of await s.getCharacteristics()) {
+            const p = c.properties;
+            const props = ['read', 'write', 'notify', 'indicate'].filter(k => p[k]).join('/');
+            diag.characteristics.push(s.uuid.substr(4, 4) + ' → ' + c.uuid + ' [' + props + ']');
+            log('  Característica: ' + c.uuid + ' [' + props + ']');
+          }
+        } catch (e) { log('  (no se pudieron listar características: ' + e.message + ')'); }
+      }
+    } catch (e) {
+      log('No se pudieron listar servicios: ' + e.name + ': ' + e.message);
+    }
+    emitDiag();
+  }
+
+  async function connect(exploreAll) {
+    diag.last_error_code = ''; diag.last_error = '';
+    refreshEnvironment();
+    if (!diag.secure_context) return fail('INSECURE_CONTEXT');
+    if (!navigator.bluetooth) return fail('NO_WEB_BLUETOOTH');
+    if (policyAllowsBluetooth() === false) return fail('PERMISSIONS_POLICY');
+    if (status === 'connected' || status === 'connecting' || status === 'scanning') {
+      log('Ya hay una conexión en curso.'); return;
+    }
+
+    // Debe ejecutarse dentro de la activación de usuario (el clic en Godot).
+    setStatus('scanning');
+    const options = exploreAll
+      ? { acceptAllDevices: true, optionalServices: [HR_SERVICE].concat(OPTIONAL_SERVICES) }
+      : { filters: [{ services: [HR_SERVICE] }], optionalServices: OPTIONAL_SERVICES };
+    log('requestDevice(' + (exploreAll ? 'acceptAllDevices' : 'filtro Heart Rate 0x180D') + ')');
+    try {
+      device = await navigator.bluetooth.requestDevice(options);
+    } catch (e) {
+      const code = classifyRequestError(e);
+      if (code === 'USER_CANCELLED') {
+        diag.last_error_code = code; diag.last_error = ERR[code] + ' [' + e.name + ': ' + e.message + ']';
+        log(diag.last_error);
+        return setStatus('disconnected');
+      }
+      return fail(code, e);
+    }
+
+    diag.device_name = device.name || '(sin nombre)';
+    diag.device_id = device.id || '(no disponible)';
+    log('Dispositivo elegido: ' + diag.device_name + '  id=' + diag.device_id);
+    device.removeEventListener('gattserverdisconnected', onDisconnected);
+    device.addEventListener('gattserverdisconnected', onDisconnected);
+    manualDisconnect = false;
+
+    setStatus('connecting');
+    try { server = await device.gatt.connect(); }
+    catch (e) { return fail('GATT_CONNECT_FAILED', e); }
+    log('GATT conectado.');
+
+    await listGatt();
+
+    let service;
+    try { service = await server.getPrimaryService(HR_SERVICE); }
+    catch (e) { return fail('SERVICE_NOT_FOUND', e); }
+    try { characteristic = await service.getCharacteristic(HR_MEASUREMENT); }
+    catch (e) { return fail('CHAR_NOT_FOUND', e); }
+
+    if (!characteristic.properties.notify) return fail('NOTIFY_UNAVAILABLE');
+    characteristic.addEventListener('characteristicvaluechanged', onHeartRateChanged);
+    try { await characteristic.startNotifications(); }
+    catch (e) { return fail('NOTIFY_UNAVAILABLE', e); }
+
+    diag.notifications = 'activadas (esperando datos)';
+    log('Notificaciones activadas en ' + HR_MEASUREMENT);
+    setStatus('connected');
+
+    watchdog = setTimeout(() => {
+      if (status === 'connected' && diag.updates === 0) {
+        diag.last_error_code = 'NO_NOTIFICATIONS'; diag.last_error = ERR.NO_NOTIFICATIONS +
+          ' (' + NO_NOTIFY_TIMEOUT_MS / 1000 + ' s sin datos)';
+        log('AVISO: ' + diag.last_error);
+        emitDiag();
+      }
+    }, NO_NOTIFY_TIMEOUT_MS);
+  }
+
+  async function disconnect() {
+    manualDisconnect = true;
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+    try { if (characteristic) await characteristic.stopNotifications(); } catch (e) {}
+    if (device && device.gatt && device.gatt.connected) device.gatt.disconnect(); // dispara onDisconnected
+    else { characteristic = null; server = null; diag.notifications = 'no'; setStatus('disconnected'); }
+  }
+
+  function refreshEnvironment() {
+    diag.web_bluetooth = !!navigator.bluetooth;
+    diag.secure_context = window.isSecureContext;
+    diag.in_iframe = inIframe();
+    const p = policyAllowsBluetooth();
+    diag.permissions_policy = p === null ? 'no detectable' : (p ? 'permite bluetooth' : 'BLOQUEA bluetooth');
+    diag.browser = browserName();
+  }
+
+  window.HeartRateWebBridge = {
+    // Callbacks creados con JavaScriptBridge.create_callback() en GDScript.
+    setCallbacks: function (onHr, onStatus, onLog, onDiag) {
+      cb = { hr: onHr, status: onStatus, log: onLog, diag: onDiag };
+      refreshEnvironment();
+      log('Bridge listo. Web Bluetooth=' + (diag.web_bluetooth ? 'Sí' : 'No') +
+          ', secureContext=' + diag.secure_context + ', iframe=' + diag.in_iframe +
+          ', permissionsPolicy=' + diag.permissions_policy);
+      emitDiag();
+    },
+    isAvailable: function () { refreshEnvironment(); return diag.web_bluetooth && diag.secure_context && policyAllowsBluetooth() !== false; },
+    connectDevice: function (exploreAll) { connect(!!exploreAll).catch(e => fail('UNKNOWN', e)); },
+    disconnectDevice: function () { disconnect().catch(e => fail('UNKNOWN', e)); },
+    getConnectionStatus: function () { return status; },
+    getDiagnostics: function () { refreshEnvironment(); return JSON.stringify(diag); }
+  };
+})();
+</script>
+<!-- ======================= FIN HEART RATE WEB BRIDGE ===================== -->
+
+<script src="$GODOT_URL"></script>
+<script>
+const GODOT_CONFIG = $GODOT_CONFIG;
+const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
+const engine = new Engine(GODOT_CONFIG);
+const statusEl = document.getElementById('status');
+engine.startGame({
+  onProgress: function (current, total) {
+    statusEl.textContent = total > 0 ? 'Cargando… ' + Math.round(100 * current / total) + '%' : 'Cargando…';
+  }
+}).then(() => { statusEl.remove(); }, (err) => {
+  statusEl.textContent = 'Error al iniciar Godot: ' + err;
+  console.error(err);
+});
+</script>
+</body>
+</html>
