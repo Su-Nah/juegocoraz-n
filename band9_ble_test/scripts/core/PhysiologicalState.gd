@@ -207,6 +207,12 @@ func _update_recovery() -> void:
 			_rec_on = 0.0
 			recovery_ended.emit()
 
+## Estado legible: CALMA · ACTIVACIÓN · PRESIÓN · TORMENTA · RECUPERACIÓN.
+func state_name() -> String:
+	if is_recovering:
+		return "RECUPERACIÓN"
+	return ["CALMA", "ACTIVACIÓN", "PRESIÓN", "TORMENTA"][clampi(activation_level, 0, 3)]
+
 func level_name(level: int = -1) -> String:
 	var l := activation_level if level < 0 else level
 	return ["calmo", "activado", "presión", "tempestad"][clampi(l, 0, 3)]

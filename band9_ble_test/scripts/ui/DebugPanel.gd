@@ -47,7 +47,8 @@ func _process(_dt: float) -> void:
 		"tendencia: %+.2f BPM/s   recuperando: %s (%.2f)   estab. fisiológica: %.2f" % [Physio.recovery_trend, "SÍ" if Physio.is_recovering else "no", Physio.recovery_strength, Physio.stability],
 		"estabilidad jugador: %.2f   reposo: %.1fs   pausa: %s   frenético: %s" % [st.value, st.idle_time, "sí" if st.paused else "no", "SÍ" if st.is_frantic() else "no"],
 		"fase: %s (%.0fs)   presión juego: %d   efectiva: %.2f   tier: %d   protección: %s" % [d.phase().get("name", "-"), d.phase_time, d.pressure_level, d.effective_pressure, d.tier, "SÍ" if d.protecting else "no"],
-		"alivio: %.2f   intensidad mundo: %.2f   eventos activos: %d" % [d.relief, d.world_intensity, game.active_stimuli()],
+		"estado: %s   alivio: %.2f   eventos activos: %d" % [Physio.state_name(), d.relief, game.active_stimuli()],
+		"salidas → ambient %.2f · cat_activity %.2f · event_density %.2f · audio %.2f" % [d.ambient_intensity, d.cat_activity, d.event_density, d.audio_intensity],
 		"música: %s   ganancias %s" % [game.music.current_layer_name(), str(game.music.gains.map(func(g): return snappedf(g, 0.01)))],
 		"simulador: %d BPM %s   [F1 secuencia 60→130→70 · F2 parar · +/- 5 BPM]" % [HeartRate.sim.target_bpm, "(secuencia)" if HeartRate.sim.is_playing_sequence() else ""],
 	])

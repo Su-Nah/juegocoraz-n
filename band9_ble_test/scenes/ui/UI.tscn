@@ -1,0 +1,199 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/UI.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/ui/DebugPanel.gd" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="s1"]
+bg_color = Color(0.98, 0.95, 0.9, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.29, 0.23, 0.21, 1)
+
+[node name="UI" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1")
+
+[node name="Titulo" type="PanelContainer" parent="."]
+offset_left = 380.0
+offset_top = 110.0
+offset_right = 900.0
+offset_bottom = 600.0
+theme_override_styles/panel = SubResource("s1")
+
+[node name="Margen" type="MarginContainer" parent="Titulo"]
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="V" type="VBoxContainer" parent="Titulo/Margen"]
+theme_override_constants/separation = 12
+
+[node name="Nombre" type="Label" parent="Titulo/Margen/V"]
+theme_override_colors/font_color = Color(0.33, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 44
+text = "Gatos en la barra"
+horizontal_alignment = 1
+
+[node name="Sub" type="Label" parent="Titulo/Margen/V"]
+theme_override_colors/font_color = Color(0.45, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 15
+text = "un puesto pequeño, gatos, y lo que no puedes controlar"
+horizontal_alignment = 1
+
+[node name="Conectar" type="Button" parent="Titulo/Margen/V"]
+custom_minimum_size = Vector2(0, 42)
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Conectar Huawei Band 9"
+
+[node name="Estado" type="Label" parent="Titulo/Margen/V"]
+theme_override_colors/font_color = Color(0.35, 0.35, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Comenzar" type="Button" parent="Titulo/Margen/V"]
+custom_minimum_size = Vector2(0, 42)
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Abrir el puesto"
+
+[node name="Sep" type="HSeparator" parent="Titulo/Margen/V"]
+
+[node name="Dev" type="HBoxContainer" parent="Titulo/Margen/V"]
+alignment = 1
+
+[node name="Simulador" type="Button" parent="Titulo/Margen/V/Dev"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+theme_override_font_sizes/font_size = 13
+text = "Simulador (desarrollo)"
+
+[node name="Diagnostico" type="Button" parent="Titulo/Margen/V/Dev"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+theme_override_font_sizes/font_size = 13
+text = "Diagnóstico BLE"
+
+[node name="Ayuda" type="Label" parent="Titulo/Margen/V"]
+theme_override_colors/font_color = Color(0.55, 0.5, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "Esc o la tablilla: pausa · F3: panel técnico · F1: secuencia del simulador"
+horizontal_alignment = 1
+
+[node name="Pausa" type="PanelContainer" parent="."]
+offset_left = 490.0
+offset_top = 200.0
+offset_right = 790.0
+offset_bottom = 500.0
+theme_override_styles/panel = SubResource("s1")
+
+[node name="Margen" type="MarginContainer" parent="Pausa"]
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="V" type="VBoxContainer" parent="Pausa/Margen"]
+theme_override_constants/separation = 12
+
+[node name="T" type="Label" parent="Pausa/Margen/V"]
+theme_override_colors/font_color = Color(0.33, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 30
+text = "Pausa"
+horizontal_alignment = 1
+
+[node name="S" type="Label" parent="Pausa/Margen/V"]
+theme_override_colors/font_color = Color(0.45, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 14
+text = "El puesto espera."
+horizontal_alignment = 1
+
+[node name="Continuar" type="Button" parent="Pausa/Margen/V"]
+custom_minimum_size = Vector2(0, 42)
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Seguir"
+
+[node name="Diagnostico" type="Button" parent="Pausa/Margen/V"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "Diagnóstico BLE"
+
+[node name="Inicio" type="Button" parent="Pausa/Margen/V"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "Volver al inicio"
+
+[node name="SinSenal" type="HBoxContainer" parent="."]
+offset_left = 900.0
+offset_top = 10.0
+offset_right = 1270.0
+offset_bottom = 50.0
+alignment = 2
+
+[node name="L" type="Label" parent="SinSenal"]
+theme_override_colors/font_color = Color(0.33, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 15
+text = "La pulsera no se siente"
+horizontal_alignment = 1
+
+[node name="Reconectar" type="Button" parent="SinSenal"]
+custom_minimum_size = Vector2(0, 32)
+focus_mode = 0
+theme_override_font_sizes/font_size = 14
+text = "Reconectar"
+
+[node name="Resultados" type="PanelContainer" parent="."]
+offset_left = 300.0
+offset_top = 30.0
+offset_right = 980.0
+offset_bottom = 690.0
+theme_override_styles/panel = SubResource("s1")
+
+[node name="Margen" type="MarginContainer" parent="Resultados"]
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 22
+
+[node name="V" type="VBoxContainer" parent="Resultados/Margen"]
+theme_override_constants/separation = 12
+
+[node name="T" type="Label" parent="Resultados/Margen/V"]
+theme_override_colors/font_color = Color(0.33, 0.24, 0.26, 1)
+theme_override_font_sizes/font_size = 34
+text = "Cierre del día"
+horizontal_alignment = 1
+
+[node name="Contenido" type="VBoxContainer" parent="Resultados/Margen/V"]
+theme_override_constants/separation = 6
+
+[node name="Botones" type="HBoxContainer" parent="Resultados/Margen/V"]
+alignment = 1
+theme_override_constants/separation = 16
+
+[node name="Otra" type="Button" parent="Resultados/Margen/V/Botones"]
+custom_minimum_size = Vector2(0, 42)
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Abrir otro día"
+
+[node name="Inicio" type="Button" parent="Resultados/Margen/V/Botones"]
+custom_minimum_size = Vector2(0, 42)
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Inicio"
+
+[node name="Debug" type="PanelContainer" parent="."]
+script = ExtResource("2")

@@ -34,9 +34,10 @@ func reset() -> void:
 	_escalation_time = 0.0
 	_episode = {}
 	stats = {
-		"money": 0, "served": 0, "let_go": 0, "left_on_own": 0,
+		"dangos": 0, "served": 0, "left_on_own": 0, "discards": 0,
 		"pauses": 0, "rests": 0, "fu_ignored": 0, "fu_reacted": 0,
-		"objects_restored": 0, "recovery_times": [], "peak_hr": 0.0,
+		"falls_ignored": 0, "objects_restored": 0, "recovery_moments": 0,
+		"recovery_times": [], "peak_hr": 0.0,
 		"time_pressure_ok": 0.0, "time_pressure": 0.0, "stab_sum": 0.0, "stab_samples": 0,
 		"duration": 0.0,
 	}
@@ -63,9 +64,24 @@ func start_pause() -> bool:
 	pause_started.emit()
 	return true
 
-func let_go() -> void:
-	stats["let_go"] += 1
-	_bump(C.LET_GO_GAIN)
+## Un gato se fue. No es castigo; si no estabas reaccionando frenéticamente,
+## aceptar esa pérdida suma un poco.
+func cat_left() -> void:
+	stats["left_on_own"] += 1
+	if not is_frantic():
+		_bump(C.LEFT_CALM_GAIN)
+
+## Un ingrediente caído volvió solo: no hacía falta correr.
+func fall_ignored() -> void:
+	stats["falls_ignored"] += 1
+	_bump(C.IGNORED_FALL_GAIN)
+
+## Descartar en el bote es una herramienta normal: solo se cuenta.
+func discard() -> void:
+	stats["discards"] += 1
+
+func recovery_moment() -> void:
+	stats["recovery_moments"] += 1
 
 func false_urgency_ignored() -> void:
 	stats["fu_ignored"] += 1

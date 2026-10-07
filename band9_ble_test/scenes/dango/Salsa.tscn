@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/dango/salsa.png" id="1"]
+
+[node name="Salsa" type="Node2D"]
+
+[node name="SobreInferior" type="Sprite2D" parent="."]
+position = Vector2(0, -76)
+texture = ExtResource("1")
+
+[node name="SobreCentral" type="Sprite2D" parent="."]
+position = Vector2(0, -128)
+texture = ExtResource("1")
+
+[node name="SobreSuperior" type="Sprite2D" parent="."]
+position = Vector2(0, -180)
+texture = ExtResource("1")

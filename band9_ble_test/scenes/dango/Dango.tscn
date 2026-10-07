@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/dango/Dango.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/dango/palito.png" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/dango/DangoBola.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/dango/Salsa.tscn" id="4"]
+
+[node name="Dango" type="Node2D"]
+script = ExtResource("1")
+lower = "verde"
+middle = "blanca"
+upper = "rosa"
+
+[node name="Palito" type="Sprite2D" parent="."]
+position = Vector2(0, -110)
+texture = ExtResource("2")
+
+[node name="BolaInferior" parent="." instance=ExtResource("3")]
+position = Vector2(0, -70)
+
+[node name="BolaCentral" parent="." instance=ExtResource("3")]
+position = Vector2(0, -122)
+color_id = "blanca"
+
+[node name="BolaSuperior" parent="." instance=ExtResource("3")]
+position = Vector2(0, -174)
+color_id = "rosa"
+
+[node name="Salsa" parent="." instance=ExtResource("4")]
+visible = false

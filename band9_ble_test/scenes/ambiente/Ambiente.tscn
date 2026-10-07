@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/cielo.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/montanas.png" id="2"]
+[ext_resource type="Script" path="res://scripts/ambiente/Arbol.gd" id="3"]
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/tronco.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/copa.png" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/ambiente/Petalos.tscn" id="6"]
+
+[node name="Ambiente" type="Node2D"]
+
+[node name="Cielo" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+centered = false
+
+[node name="Montanas" type="Sprite2D" parent="."]
+position = Vector2(640, 320)
+texture = ExtResource("2")
+
+[node name="Arbol" type="Node2D" parent="."]
+position = Vector2(40, 120)
+script = ExtResource("3")
+
+[node name="Tronco" type="Sprite2D" parent="Arbol"]
+position = Vector2(0, 160)
+texture = ExtResource("4")
+
+[node name="Copa" type="Sprite2D" parent="Arbol"]
+position = Vector2(30, 0)
+texture = ExtResource("5")
+
+[node name="Petalos" parent="." instance=ExtResource("6")]
+position = Vector2(0, 80)
+area = Rect2(-40, -40, 360, 120)
+suelo_y = 340.0

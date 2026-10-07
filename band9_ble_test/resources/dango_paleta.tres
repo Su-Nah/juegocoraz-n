@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="DangoPalette" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/dango/DangoPalette.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/dango/bola_verde.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/art/dango/bola_blanca.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/art/dango/bola_rosa.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/art/dango/salsa.png" id="5"]
+
+[resource]
+script = ExtResource("1")
+verde = ExtResource("2")
+blanca = ExtResource("3")
+rosa = ExtResource("4")
+salsa = ExtResource("5")

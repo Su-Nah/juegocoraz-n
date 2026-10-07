@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ambiente/Cortinas.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/tela.png" id="2"]
+
+[node name="Cortinas" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Tela1" type="Sprite2D" parent="."]
+position = Vector2(330, 0)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-70, 0)
+
+[node name="Tela2" type="Sprite2D" parent="."]
+position = Vector2(480, 0)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-70, 0)
+
+[node name="Tela3" type="Sprite2D" parent="."]
+position = Vector2(630, 0)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-70, 0)
+
+[node name="Tela4" type="Sprite2D" parent="."]
+position = Vector2(780, 0)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-70, 0)
+
+[node name="Tela5" type="Sprite2D" parent="."]
+position = Vector2(930, 0)
+texture = ExtResource("2")
+centered = false
+offset = Vector2(-70, 0)

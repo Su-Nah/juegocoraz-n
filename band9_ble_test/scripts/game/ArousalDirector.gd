@@ -11,11 +11,11 @@ signal phase_changed(index: int, phase: Dictionary)
 signal pressure_changed(level: int)
 signal challenge_raised(tier: int)
 signal protection_changed(active: bool)
-signal spawn_requested(kind: String, order: Array, patience: float)
+signal spawn_requested(kind: String, order: Dictionary, patience: float)
 signal session_finished()
 
 const C := preload("res://scripts/core/Config.gd")
-const DISHES := ["te", "onigiri", "dango"]
+const DangoData := preload("res://scripts/core/DangoData.gd")
 
 var phase_index := -1
 var phase_time := 0.0
@@ -25,6 +25,12 @@ var protecting := false
 var relief := 0.0            # 0..1 alivio por recuperación/pausa (suavizado)
 var world_intensity := 0.0   # 0..1 lo que siente el mundo (visual/audio), suavizado
 var effective_pressure := 0.0
+
+## SALIDAS ABSTRACTAS del director (cada sistema decide cómo representarlas):
+var ambient_intensity := 0.0 # agua, viento, pétalos, vapor, telas, color
+var cat_activity := 0.0      # inquietud de los gatos (con límites)
+var event_density := 0.0     # densidad de llegadas/eventos
+var audio_intensity := 0.0   # capas musicales
 var running := false
 var _mastery := 0.0
 var _protect_time := 0.0
@@ -97,6 +103,10 @@ func tick(dt: float, ctx: Dictionary) -> void:
 	var target_int := clampf(0.55 * effective_pressure / 3.0 + 0.45 * Physio.activation, 0.0, 1.0)
 	target_int *= 1.0 - 0.6 * relief
 	world_intensity = move_toward(world_intensity, target_int, dt * 0.12)
+	ambient_intensity = world_intensity
+	audio_intensity = world_intensity
+	event_density = effective_pressure / 3.0
+	cat_activity = clampf(world_intensity * 0.75 + (1.0 - stability.value) * 0.35 - relief * 0.3, 0.0, 0.85)
 
 	if not ph.get("no_spawn", false):
 		_update_spawning(dt, ctx, ph)
@@ -159,9 +169,9 @@ func _pending_forced(ph: Dictionary, ctx: Dictionary) -> String:
 		var when: float = float(ph["duration"]) * C.DURATION_SCALE * (0.2 + 0.35 * i)
 		if _forced_done.has(k) or phase_time < when:
 			continue
-		if k == "knock" and not ctx["knockable"]:
+		if k == "travieso" and not ctx["knockable"]:
 			continue
-		if k == "false_urgency" and ctx["fu_present"]:
+		if k == "falsa_urgencia" and ctx["fu_present"]:
 			continue
 		return k
 	return ""
@@ -169,22 +179,19 @@ func _pending_forced(ph: Dictionary, ctx: Dictionary) -> String:
 func _choose_kind(p: int, ctx: Dictionary) -> String:
 	var ev: float = C.EVENT_CHANCE[p] * (1.0 - 0.7 * relief)
 	if tier >= 4 and not ctx["fu_present"] and randf() < ev * 0.45:
-		return "false_urgency"
+		return "falsa_urgencia"
 	if tier >= 3 and ctx["knockable"] and randf() < ev:
-		return "knock"
+		return "travieso"
 	if tier >= 2 and randf() < 0.3 + 0.1 * p:
-		return "impatient"
+		return "impaciente"
 	return "normal"
 
 func _spawn(kind: String, p: int) -> void:
-	var order: Array = []
-	if kind != "false_urgency":
-		order.append(DISHES[randi() % DISHES.size()])
-		var complex_chance: float = C.COMPLEX_CHANCE[p] if tier >= 1 else 0.0
-		if tier >= 5 and kind != "normal":
-			complex_chance += 0.2
-		if randf() < complex_chance:
-			order.append(DISHES[randi() % DISHES.size()])
+	# La carga cognitiva sube poco a poco: tradicional → permutaciones → cualquiera.
+	var complexity := 0 if tier == 0 else (1 if tier == 1 else 2)
+	if tier >= 2 and p <= 0 and randf() < 0.4:
+		complexity = 1
+	var order := DangoData.random_order(complexity)
 	var patience: float = C.PATIENCE[p] * (1.0 + C.RECOVERY_PATIENCE_RELIEF * relief)
 	spawn_requested.emit(kind, order, patience)
 

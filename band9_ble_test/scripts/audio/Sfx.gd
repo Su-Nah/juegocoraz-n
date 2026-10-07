@@ -16,7 +16,7 @@ func _ready() -> void:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
 		_players.append(p)
-	for n in ["plim", "meow", "meow_urgent", "crash", "coin", "pop", "tuk", "bell"]:
+	for n in ["plim", "meow", "meow_urgent", "crash", "coin", "pop", "tuk", "bell", "chime"]:
 		_sounds[n] = _cargar(DIR + n + ".wav")
 
 func _cargar(ruta: String) -> AudioStream:

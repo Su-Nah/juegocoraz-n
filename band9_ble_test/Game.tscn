@@ -1,6 +1,64 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=15 format=3]
 
-[ext_resource type="Script" path="res://scripts/game/Game.gd" id="1"]
+[ext_resource type="Shader" path="res://shaders/mood.gdshader" id="1"]
+[ext_resource type="Script" path="res://scripts/game/Game.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ambiente/Ambiente.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/Puesto.tscn" id="4"]
+[ext_resource type="Script" path="res://scripts/gatos/Clientela.gd" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/Barra.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/Cocina.tscn" id="7"]
+[ext_resource type="Script" path="res://scripts/cocina/Manos.gd" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/Tutorial.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UI.tscn" id="10"]
+[ext_resource type="Script" path="res://scripts/game/ArousalDirector.gd" id="11"]
+[ext_resource type="Script" path="res://scripts/game/StabilitySystem.gd" id="12"]
+[ext_resource type="Script" path="res://scripts/audio/MusicLayers.gd" id="13"]
+
+[sub_resource type="ShaderMaterial" id="s1"]
+shader = ExtResource("1")
 
 [node name="Game" type="Node2D"]
-script = ExtResource("1")
+script = ExtResource("2")
+
+[node name="Ambiente" parent="." instance=ExtResource("3")]
+
+[node name="Puesto" parent="." instance=ExtResource("4")]
+
+[node name="Gatos" type="Node2D" parent="."]
+script = ExtResource("5")
+
+[node name="Barra" parent="." instance=ExtResource("6")]
+
+[node name="Cocina" parent="." instance=ExtResource("7")]
+
+[node name="Manos" type="Node2D" parent="."]
+z_index = 20
+script = ExtResource("8")
+
+[node name="Tutorial" parent="." instance=ExtResource("9")]
+
+[node name="Camara" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+
+[node name="Atmosfera" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Filtro" type="ColorRect" parent="Atmosfera"]
+material = SubResource("s1")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="UI" parent="." instance=ExtResource("10")]
+
+[node name="Director" type="Node" parent="."]
+script = ExtResource("11")
+
+[node name="Stability" type="Node" parent="."]
+script = ExtResource("12")
+
+[node name="Musica" type="Node" parent="."]
+script = ExtResource("13")

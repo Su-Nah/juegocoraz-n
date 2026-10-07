@@ -21,11 +21,14 @@ N = int(round(LOOP_SECONDS * SR))
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "audio", "gen")
 rng = np.random.default_rng(7)
 
-# Escala in-sen japonesa sobre D: D Eb G A C
 def hz(midi):
     return 440.0 * 2 ** ((midi - 69) / 12.0)
 
-INSEN = [62, 63, 67, 69, 72, 74, 75, 79]
+# Escala yo (pentatónica japonesa SIN semitonos) sobre D: D E G A B.
+# Es consonante: el inicio debe sentirse seguro. La disonancia leve (Eb) solo
+# aparece en la capa de tormenta.
+INSEN = [62, 64, 67, 69, 71, 74, 76, 79]
+DISSONANT = 63
 
 
 def save(name, x, peak=0.8):
@@ -162,9 +165,9 @@ def layer_storm():
     buf = np.zeros(N)
     for b in range(0, BEATS, 2):  # taiko grave
         place(buf, drum(110, 55, 0.6, 0.3, 6) * 1.0, b * BEAT)
-    for s in range(BEATS * 4):  # trémolo disonante (semitono)
-        note = INSEN[1] if (s // 8) % 2 else INSEN[0]
-        place(buf, pluck(hz(note + 12), 0.25, 0.9) * 0.12, s * BEAT / 4)
+    for s in range(BEATS * 4):  # trémolo con una disonancia LEVE y ocasional
+        note = DISSONANT if (s // 8) % 4 == 3 else INSEN[0]
+        place(buf, pluck(hz(note + 12), 0.25, 0.9) * 0.08, s * BEAT / 4)
     t = np.arange(N) / SR
     gust = lowpass(rng.uniform(-1, 1, N), 0.04) * (0.5 + 0.5 * np.sin(2 * np.pi * t * 2 / LOOP_SECONDS) ** 2)
     buf += gust * 1.2
@@ -231,6 +234,17 @@ def sfx_purr():
     return nz * am * breath
 
 
+def sfx_chime():
+    # fūrin: campanilla de viento, brillante y suave
+    d = 2.2
+    t = np.linspace(0, d, int(d * SR), endpoint=False)
+    x = np.zeros_like(t)
+    for f, a, dec in ((2093, 1.0, 2.2), (3136, 0.5, 3.0), (4699, 0.3, 4.0), (2637, 0.4, 2.6)):
+        x += a * np.sin(2 * np.pi * f * t) * np.exp(-t * dec)
+    x += 0.6 * np.concatenate([np.zeros(int(0.18 * SR)), (np.sin(2 * np.pi * 2349 * t) * np.exp(-t * 2.5))[: len(t) - int(0.18 * SR)]])
+    return x
+
+
 def sfx_bell():
     d = 2.5
     t = np.linspace(0, d, int(d * SR), endpoint=False)
@@ -255,4 +269,5 @@ if __name__ == "__main__":
     save("tuk.wav", sfx_tuk(), 0.5)
     save("purr.wav", sfx_purr(), 0.6)
     save("bell.wav", sfx_bell(), 0.5)
+    save("chime.wav", sfx_chime(), 0.45)
     print("OK ->", os.path.normpath(OUT), "loop =", LOOP_SECONDS, "s")

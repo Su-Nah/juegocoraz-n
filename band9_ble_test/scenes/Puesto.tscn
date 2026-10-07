@@ -1,0 +1,37 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/poste.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/ambiente/techo.png" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ambiente/Cortinas.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ambiente/Farol.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/cocina/Campanilla.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/cocina/Tablilla.tscn" id="6"]
+
+[node name="Puesto" type="Node2D"]
+
+[node name="PosteI" type="Sprite2D" parent="."]
+position = Vector2(112, 300)
+texture = ExtResource("1")
+
+[node name="PosteD" type="Sprite2D" parent="."]
+position = Vector2(1168, 300)
+texture = ExtResource("1")
+
+[node name="Techo" type="Sprite2D" parent="."]
+position = Vector2(640, 105)
+texture = ExtResource("2")
+
+[node name="Cortinas" parent="." instance=ExtResource("3")]
+position = Vector2(0, 140)
+
+[node name="FarolI" parent="." instance=ExtResource("4")]
+position = Vector2(165, 140)
+
+[node name="FarolD" parent="." instance=ExtResource("4")]
+position = Vector2(1100, 140)
+
+[node name="Campanilla" parent="." instance=ExtResource("5")]
+position = Vector2(245, 140)
+
+[node name="Tablilla" parent="." instance=ExtResource("6")]
+position = Vector2(1215, 142)
