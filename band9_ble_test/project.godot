@@ -3,15 +3,22 @@ config_version=5
 
 [application]
 
-config/name="Band9 BLE Test"
-run/main_scene="res://Main.tscn"
+config/name="Neko Yatai"
+run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[autoload]
+
+HeartRate="*res://scripts/core/HeartRateService.gd"
+Physio="*res://scripts/core/PhysiologicalState.gd"
+Sfx="*res://scripts/audio/Sfx.gd"
 
 [display]
 
-window/size/viewport_width=1100
-window/size/viewport_height=760
-window/stretch/mode="disabled"
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
 
 [rendering]
 

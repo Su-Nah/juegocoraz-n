@@ -30,11 +30,11 @@ var _explore_btn: Button
 var _disconnect_btn: Button
 
 func _ready() -> void:
-	web = WebBridge.new()
-	sim = Simulator.new()
+	# Los proveedores viven en el autoload HeartRate (compartidos con el juego),
+	# así la conexión con la Band 9 sobrevive al cambiar de escena.
+	web = HeartRate.web
+	sim = HeartRate.sim
 	_build_ui()
-	add_child(web)
-	add_child(sim)
 
 	web.heart_rate_received.connect(_on_real_bpm)
 	web.status_changed.connect(_on_real_status)
@@ -43,8 +43,10 @@ func _ready() -> void:
 	sim.heart_rate_received.connect(_on_sim_bpm)
 	sim.log_message.connect(_append_log)
 
-	_on_real_status("disconnected")
-	_on_diag({})
+	_on_real_status(web.get_connection_status())
+	_on_diag(web.diagnostics)
+	if sim.get_connection_status() == "connected":
+		_sim_btn.text = "DETENER SIMULACIÓN"
 
 func _process(_delta: float) -> void:
 	_last_lbl.text = "Última actualización: " + _ago(web.last_update_msec)
@@ -160,6 +162,7 @@ func _build_ui() -> void:
 	cols.add_child(left)
 
 	left.add_child(_label("HUAWEI BAND 9 — BLE TEST", 24))
+	left.add_child(_button("← Volver al juego", func(): get_tree().change_scene_to_file("res://Game.tscn")))
 	left.add_child(_label("Estado:", 14))
 	_status_lbl = _label("● Desconectado", 20)
 	left.add_child(_status_lbl)
