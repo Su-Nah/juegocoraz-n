@@ -2,7 +2,7 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://bva6mnk1jle7q"
+uid="uid://df575net8dnpk"
 path="res://.godot/imported/coin.wav-e65172825ce3361932e7cc5645370c58.sample"
 
 [deps]
@@ -21,4 +21,4 @@ edit/normalize=false
 edit/loop_mode=0
 edit/loop_begin=0
 edit/loop_end=-1
-compress/mode=0
+compress/mode=2
