@@ -1,49 +1,56 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://kck5wmf20gl0"]
 
-[ext_resource type="Shader" path="res://shaders/mood.gdshader" id="1"]
-[ext_resource type="Script" path="res://scripts/game/Game.gd" id="2"]
+[ext_resource type="Shader" uid="uid://cj3ccq11j5y00" path="res://shaders/mood.gdshader" id="1"]
+[ext_resource type="Script" uid="uid://cq1ehsapmiu2x" path="res://scripts/game/Game.gd" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ambiente/Ambiente.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/Puesto.tscn" id="4"]
-[ext_resource type="Script" path="res://scripts/gatos/Clientela.gd" id="5"]
+[ext_resource type="Script" uid="uid://dj74nx43ps03k" path="res://scripts/gatos/Clientela.gd" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/Barra.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/Cocina.tscn" id="7"]
-[ext_resource type="Script" path="res://scripts/cocina/Manos.gd" id="8"]
+[ext_resource type="Script" uid="uid://weq3m8wwdsxk" path="res://scripts/cocina/Manos.gd" id="8"]
 [ext_resource type="PackedScene" path="res://scenes/Tutorial.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/ui/UI.tscn" id="10"]
-[ext_resource type="Script" path="res://scripts/game/ArousalDirector.gd" id="11"]
-[ext_resource type="Script" path="res://scripts/game/StabilitySystem.gd" id="12"]
-[ext_resource type="Script" path="res://scripts/audio/MusicLayers.gd" id="13"]
+[ext_resource type="Script" uid="uid://d27h12a5dsqmn" path="res://scripts/game/ArousalDirector.gd" id="11"]
+[ext_resource type="Script" uid="uid://dq4n4v1ie5vf" path="res://scripts/game/StabilitySystem.gd" id="12"]
+[ext_resource type="Script" uid="uid://b75skji76jkj6" path="res://scripts/audio/MusicLayers.gd" id="13"]
 
 [sub_resource type="ShaderMaterial" id="s1"]
 shader = ExtResource("1")
+shader_parameter/saturation = 0.9
+shader_parameter/contrast = 1.0
+shader_parameter/brightness = 0.0
+shader_parameter/hue_shift = 0.0
+shader_parameter/tint = Color(0.75, 0.92, 0.95, 1)
+shader_parameter/tint_amount = 0.1
+shader_parameter/vignette = 0.15
 
-[node name="Game" type="Node2D"]
+[node name="Game" type="Node2D" unique_id=1972583862]
 script = ExtResource("2")
 
-[node name="Ambiente" parent="." instance=ExtResource("3")]
+[node name="Ambiente" parent="." unique_id=1358314913 instance=ExtResource("3")]
 
-[node name="Puesto" parent="." instance=ExtResource("4")]
+[node name="Puesto" parent="." unique_id=1365368344 instance=ExtResource("4")]
 
-[node name="Gatos" type="Node2D" parent="."]
+[node name="Gatos" type="Node2D" parent="." unique_id=1819293894]
 script = ExtResource("5")
 
-[node name="Barra" parent="." instance=ExtResource("6")]
+[node name="Barra" parent="." unique_id=1290535029 instance=ExtResource("6")]
 
-[node name="Cocina" parent="." instance=ExtResource("7")]
+[node name="Cocina" parent="." unique_id=1659730190 instance=ExtResource("7")]
 
-[node name="Manos" type="Node2D" parent="."]
+[node name="Manos" type="Node2D" parent="." unique_id=722873833]
 z_index = 20
 script = ExtResource("8")
 
-[node name="Tutorial" parent="." instance=ExtResource("9")]
+[node name="Tutorial" parent="." unique_id=1335137816 instance=ExtResource("9")]
 
-[node name="Camara" type="Camera2D" parent="."]
+[node name="Camara" type="Camera2D" parent="." unique_id=2026377182]
 position = Vector2(640, 360)
 
-[node name="Atmosfera" type="CanvasLayer" parent="."]
+[node name="Atmosfera" type="CanvasLayer" parent="." unique_id=1121836581]
 layer = 5
 
-[node name="Filtro" type="ColorRect" parent="Atmosfera"]
+[node name="Filtro" type="ColorRect" parent="Atmosfera" unique_id=658811424]
 material = SubResource("s1")
 anchors_preset = 15
 anchor_right = 1.0
@@ -52,13 +59,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="UI" parent="." instance=ExtResource("10")]
+[node name="UI" parent="." unique_id=602848499 instance=ExtResource("10")]
 
-[node name="Director" type="Node" parent="."]
+[node name="Director" type="Node" parent="." unique_id=930358234]
 script = ExtResource("11")
 
-[node name="Stability" type="Node" parent="."]
+[node name="Stability" type="Node" parent="." unique_id=544083549]
 script = ExtResource("12")
 
-[node name="Musica" type="Node" parent="."]
+[node name="Musica" type="Node" parent="." unique_id=1691118416]
 script = ExtResource("13")
