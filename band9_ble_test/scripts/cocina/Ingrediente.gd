@@ -99,12 +99,18 @@ func _process(dt: float) -> void:
 	if state == "suelo":
 		_suelo_t += dt
 		_visual.position.y = 150.0 + sin(_t * 3.0) * 1.5
-		if _suelo_t >= C.INGREDIENT_AUTO_RETURN:
+		if C.INGREDIENT_AUTO_RETURN > 0.0 and _suelo_t >= C.INGREDIENT_AUTO_RETURN:
 			restore(false)   # podía esperar: vuelve solo
 
 ## Pequeña reacción al tocarlo.
+var _wiggle_tw: Tween
 func wiggle() -> void:
+	if state != "listo":
+		return   # no competir con la animación de caída/vuelta
+	if _wiggle_tw and _wiggle_tw.is_valid():
+		_wiggle_tw.kill()
 	var tw := create_tween()
+	_wiggle_tw = tw
 	tw.tween_property(_visual, "rotation", 0.12, 0.06)
 	tw.tween_property(_visual, "rotation", -0.08, 0.08)
 	tw.tween_property(_visual, "rotation", 0.0, 0.08)

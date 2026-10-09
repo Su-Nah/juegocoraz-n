@@ -80,7 +80,7 @@ position = Vector2(0, 13)
 texture = ExtResource("9")
 
 [node name="Patas" type="Node2D" parent="."]
-z_index = 3
+z_index = 1
 position = Vector2(0, -2)
 
 [node name="PataI" type="Sprite2D" parent="Patas"]

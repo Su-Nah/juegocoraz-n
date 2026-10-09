@@ -102,7 +102,7 @@ func tick(dt: float, ctx: Dictionary) -> void:
 
 	var target_int := clampf(0.55 * effective_pressure / 3.0 + 0.45 * Physio.activation, 0.0, 1.0)
 	target_int *= 1.0 - 0.6 * relief
-	world_intensity = move_toward(world_intensity, target_int, dt * 0.12)
+	world_intensity = move_toward(world_intensity, target_int, dt * 0.3)
 	ambient_intensity = world_intensity
 	audio_intensity = world_intensity
 	event_density = effective_pressure / 3.0

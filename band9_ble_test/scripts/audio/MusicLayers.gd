@@ -40,6 +40,10 @@ func _ready() -> void:
 	_wind = _player(null, _bus("SFX"))
 	_purrs = Variation.new(music.cache, CFG.VARIATIONS["purr"], CFG.PURR_VOLUME_DB, CFG.PURR_PITCH_MIN, CFG.PURR_PITCH_MAX)
 	_winds = Variation.new(music.cache, CFG.VARIATIONS["wind"], CFG.WIND_GUST_VOLUME_DB, 0.9, 1.1)
+	for b in [["Music", CFG.MUSIC_MASTER_DB], ["SFX", CFG.SFX_MASTER_DB]]:
+		var idx := AudioServer.get_bus_index(b[0])
+		if idx >= 0:
+			AudioServer.set_bus_volume_db(idx, b[1])
 
 func _bus(n: String) -> String:
 	return n if AudioServer.get_bus_index(n) >= 0 else "Master"
@@ -69,35 +73,46 @@ func start() -> void:
 			p.play()
 	music.start()
 
-## level: 0..3 continuo · recovering · calm_sustained · purr: 0..1 gatos ronroneando
-func update(dt: float, level: float, recovering: bool, calm_sustained: bool, purr: float) -> void:
-	var lo := clampi(floori(level), 0, 3)
-	var hi := mini(lo + 1, 3)
-	var f := level - lo
+## EL CORAZÓN DIRIGE LA MÚSICA. `level` = intensidad cardíaca h * 3 (h = Physio.activation,
+## activación relativa a la línea base, ya filtrada y protegida contra lecturas erróneas).
+##   h bajo  → solo guzheng grave, tempo BPM_MIN
+##   h sube  → el tempo acelera; entra el guzheng agudo, luego bongoes, luego tormenta
+##   h baja  → el tempo vuelve a calmarse y las capas salen (fundidos LAYER_FADE_*).
+var heart := 0.0                      # h suavizado
+var _on := {"high": false, "bongos": false, "storm": false}
+var _bpm := CFG.BPM_MIN
+
+func update(dt: float, level: float, _recovering: bool, _calm_sustained: bool, purr: float) -> void:
+	heart = move_toward(heart, clampf(level / 3.0, 0.0, 1.0), dt * 0.5)
+	var h := heart
+	_on["high"] = h >= CFG.HIGH_GUZHENG_ENTER or (_on["high"] and h >= CFG.HIGH_GUZHENG_ENTER - CFG.LAYER_HYSTERESIS)
+	_on["bongos"] = h >= CFG.BONGOS_ENTER or (_on["bongos"] and h >= CFG.BONGOS_ENTER - CFG.LAYER_HYSTERESIS)
+	_on["storm"] = h >= CFG.STORM_ENTER or (_on["storm"] and h >= CFG.STORM_ENTER - CFG.LAYER_HYSTERESIS)
+	# [ambiente, guzheng agudo, bongoes, (bongoes), tormenta]; el guzheng grave va aparte.
+	var all := not CFG.ADAPTIVE_MIX
+	targets = [1.0, 1.0 if (_on["high"] or all) else 0.0, 1.0 if (_on["bongos"] or all) else 0.0,
+		1.0 if (_on["bongos"] or all) else 0.0, 1.0 if _on["storm"] else 0.0]
 	for i in 5:
-		targets[i] = lerpf(C.MUSIC_MIX[lo][i], C.MUSIC_MIX[hi][i], f)
-	if calm_sustained:
-		for i in 5:
-			targets[i] = minf(targets[i], C.MUSIC_CALM_MIX[i]) if i >= 2 else maxf(targets[i], C.MUSIC_CALM_MIX[i])
-	if recovering:
-		targets[0] = minf(1.0, targets[0] + 0.15)
-	for i in 5:
-		var rate: float = C.MUSIC_RISE_RATE if targets[i] > gains[i] else C.MUSIC_FALL_RATE
-		if recovering and i >= 2 and targets[i] < gains[i]:
-			rate = C.MUSIC_PERC_FALL_RECOVERY * (1.4 if i == 4 else 1.0)
-		gains[i] = move_toward(gains[i], targets[i], rate * dt)
-	# Ambiente: siempre presente (no depende del estado ni del BPM).
-	_ambient.volume_db = CFG.AMBIENT_VOLUME_DB
+		gains[i] = _fade(gains[i], targets[i], dt)
+	_low_gain = _fade(_low_gain, 1.0 if started else 0.0, dt)
+	_ambient.volume_db = CFG.AMBIENT_VOLUME_DB          # siempre presente, sin reinicios
 	_storm.volume_db = _db(gains[4]) + CFG.STORM_VOLUME_DB
-	# Instrumentos del reloj musical.
-	if CFG.ADAPTIVE_MIX:
-		music.set_instrument_gain("low_guzheng", maxf(gains[1], 0.35))
-		music.set_instrument_gain("high_guzheng", gains[1])
-		music.set_instrument_gain("bongos", maxf(gains[2], gains[3]))
-	else:
-		for id in ["low_guzheng", "high_guzheng", "bongos"]:
-			music.set_instrument_gain(id, 1.0)
+	music.set_instrument_gain("low_guzheng", _low_gain)
+	music.set_instrument_gain("high_guzheng", gains[1])
+	music.set_instrument_gain("bongos", gains[2])
+	# Tempo: sigue al corazón con suavidad, sin reiniciar la pieza (MusicClock re-ancla).
+	var target_bpm := lerpf(CFG.BPM_MIN, CFG.BPM_MAX, clampf(h * CFG.HEART_TEMPO_INFLUENCE, 0.0, 1.0))
+	_bpm = move_toward(_bpm, target_bpm, dt * CFG.TEMPO_SLEW_BPM_PER_SEC)
+	if started and absf(_bpm - music.get_bpm()) > 0.25:
+		music.set_bpm(_bpm)
 	_update_variations(dt, purr)
+
+var _low_gain := 0.0
+
+## Fundido lineal desde el valor ACTUAL: reversible a mitad sin saltos, un solo control por capa.
+func _fade(cur: float, target: float, dt: float) -> float:
+	var secs: float = CFG.LAYER_FADE_IN_SECONDS if target > cur else CFG.LAYER_FADE_OUT_SECONDS
+	return move_toward(cur, target, dt / maxf(secs, 0.01))
 
 ## Ronroneos (muestras variadas mientras haya gatos ronroneando) y ráfagas de
 ## viento ocasionales cuando la tormenta está presente.

@@ -7,7 +7,7 @@ extends RefCounted
 const HR_MIN := 35.0
 const HR_MAX := 220.0
 const HR_GLITCH_JUMP := 35.0          # salto (BPM) que se considera lectura errónea si es aislado
-const FILTER_TAU := 5.0               # s; constante de tiempo del filtro exponencial
+const FILTER_TAU := 3.0               # s; constante de tiempo del filtro exponencial
 const SIGNAL_TIMEOUT := 12.0          # s sin lecturas = señal perdida
 
 const BASELINE_SECONDS := 30.0        # duración nominal del ritual tranquilo
@@ -18,11 +18,11 @@ const BASELINE_SD_FLOOR := 2.0
 
 ## Activación relativa = (HR filtrada - baseline) / baseline.
 ## Umbral para ENTRAR a cada nivel (0 calmo, 1 activado, 2 presión, 3 tempestad).
-const LEVEL_THRESHOLDS := [0.0, 0.08, 0.17, 0.28]
+const LEVEL_THRESHOLDS := [0.0, 0.06, 0.13, 0.22]
 const LEVEL_HYSTERESIS := 0.04        # para BAJAR hay que caer este margen por debajo del umbral
-const RISE_CONFIRM := 8.0             # s sostenidos para confirmar subida de nivel
-const FALL_CONFIRM := 6.0             # s sostenidos para confirmar bajada de nivel
-const ACTIVATION_FULL := 0.32         # activación relativa que equivale a 1.0 continuo
+const RISE_CONFIRM := 5.0             # s sostenidos para confirmar subida de nivel
+const FALL_CONFIRM := 4.0             # s sostenidos para confirmar bajada de nivel
+const ACTIVATION_FULL := 0.25         # activación relativa que equivale a 1.0 continuo
 
 const TREND_WINDOW := 10.0            # s de historia para la pendiente
 const RECOVERY_SLOPE := -0.15         # BPM/s; por debajo = tendencia de recuperación
@@ -88,7 +88,7 @@ const SEATS_X := [250.0, 490.0, 730.0, 970.0]
 const COUNTER_Y := 428.0
 const FU_DURATION := 8.0              # s de escándalo de la falsa urgencia (luego se calma sola)
 const KNOCK_DELAY := Vector2(4.0, 9.0)
-const INGREDIENT_AUTO_RETURN := 10.0  # s en el suelo antes de volver solo (puede esperar)
+const INGREDIENT_AUTO_RETURN := 0.0   # 0 = NO vuelve solo: el jugador lo recoge (s si > 0)
 const INGREDIENT_KNOCK_COOLDOWN := 25.0  # s antes de que ese cuenco pueda volver a caer
 const TUTORIAL_HINT_IDLE := 7.0       # s sin progreso antes de que la huella vuelva a ayudar
 const COMPANION_REMIND_LEVEL := 2     # nivel fisiológico sostenido que activa a Mochi

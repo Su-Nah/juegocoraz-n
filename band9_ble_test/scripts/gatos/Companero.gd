@@ -31,7 +31,6 @@ func pedir(d: Dictionary) -> void:
 
 func receive(d: Dictionary) -> bool:
 	if wants(d):
-		say("♥ prrr", 2.0)
 		order = {}
 		pedido.visible = false
 		patas.visible = false
@@ -42,7 +41,7 @@ func receive(d: Dictionary) -> bool:
 	return false
 
 func pet() -> void:
-	say("prrr ♥", 2.0)
+	pass   # ronronea (sonido/animación), sin texto
 
 func _process(dt: float) -> void:
 	# Mochi no se va nunca; ignora la paciencia.

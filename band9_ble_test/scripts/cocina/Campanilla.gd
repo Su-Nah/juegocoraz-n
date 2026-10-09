@@ -7,6 +7,7 @@ extends "res://scripts/cocina/Interactivo.gd"
 var intensidad := 0.0
 var tempo := 1.0
 var _t := 0.0
+var _ph := 0.0
 var _golpe := 0.0
 
 func _enter_tree() -> void:
@@ -24,4 +25,5 @@ func _process(dt: float) -> void:
 		return
 	_t += dt * tempo
 	_golpe = move_toward(_golpe, 0.0, dt * 0.5)
-	rotation = sin(_t * lerpf(0.8, 2.2, intensidad)) * lerpf(0.05, 0.18, intensidad) + sin(_t * 6.0) * 0.25 * _golpe
+	_ph += dt * tempo * lerpf(0.8, 2.2, intensidad)
+	rotation = sin(_ph) * lerpf(0.05, 0.18, intensidad) + sin(_t * 6.0) * 0.25 * _golpe

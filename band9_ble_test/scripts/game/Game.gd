@@ -116,7 +116,6 @@ func _start_ritual() -> void:
 	_set_faroles(0.0)
 	Physio.start_baseline()
 	music.start()
-	companero.say("Antes de abrir...", 2.5)
 	get_tree().create_timer(2.0).timeout.connect(func():
 		if mode == Mode.RITUAL:
 			companero.pedir(DangoData.traditional(true)))
@@ -138,7 +137,7 @@ func _start_play() -> void:
 		companero.setup_companero()
 		companero.pedido.visible = false
 	companero.say("Abrimos.", 2.0)
-	Sfx.play("bell", -12.0)
+	# (sin campana melódica al abrir)
 	_set_faroles(1.0)
 	_finishing = false
 	_progress_t = 0.0
@@ -315,7 +314,8 @@ func _update_world(dt: float) -> void:
 	if companero.is_purring():
 		purring += 1
 	# Música: el inicio es solo agua + armonía (consonante).
-	var level: float = director.audio_intensity * 3.0 if playing else 0.0
+	# El corazón dirige la música: intensidad = activación relativa a la línea base.
+	var level: float = Physio.activation * 3.0 if (playing and Physio.has_baseline) else 0.0
 	if stability.paused:
 		level *= 0.5
 	var recovering: bool = playing and (Physio.is_recovering or relief > 0.4)
@@ -348,5 +348,5 @@ func _update_heartbeat(dt: float) -> void:
 	_beat_acc += dt
 	if _beat_acc >= 60.0 / hr:
 		_beat_acc = 0.0
-		Sfx.play("plim", -21.0 - 4.0 * Physio.activation, [1.0, 1.122, 1.26, 1.498].pick_random())
+		# Solo la gota visual: la melodía de campanas ("plim") quedó desactivada.
 		agua.emit_drop()

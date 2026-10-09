@@ -5,7 +5,23 @@
 extends RefCounted
 
 # ---------------------------------------------------------------- TEMPO
-const BPM := 90.0                     # tempo de la pieza (4/4)
+const BPM := 66.0                     # tempo de partida (calma). El corazón lo sube hacia BPM_MAX.
+
+# ---------------------------------------------------------------- EL CORAZÓN DIRIGE LA MÚSICA
+## Intensidad cardíaca h (0..1) = activación relativa a TU línea base (Physio.activation).
+## Tempo musical = lerp(BPM_MIN, BPM_MAX, h * HEART_TEMPO_INFLUENCE).
+const BPM_MIN := 66.0                 # tempo en calma
+const BPM_MAX := 104.0                # tempo máximo permitido
+const HEART_TEMPO_INFLUENCE := 1.0    # 0 = el corazón no cambia el tempo · 1 = recorrido completo
+const TEMPO_SLEW_BPM_PER_SEC := 3.0   # cuán rápido sigue el tempo al corazón (suave)
+## Umbrales de h para que entre cada capa (sale un poco por debajo: histéresis).
+const HIGH_GUZHENG_ENTER := 0.25
+const BONGOS_ENTER := 0.50
+const STORM_ENTER := 0.75
+const LAYER_HYSTERESIS := 0.08
+## Fundidos de cada capa (segundos). Se pueden invertir a mitad sin saltos.
+const LAYER_FADE_IN_SECONDS := 2.5
+const LAYER_FADE_OUT_SECONDS := 2.5
 
 # ---------------------------------------------------------------- FRASES ALEATORIAS
 ## Interruptor general. Si es false, NINGÚN instrumento aleatoriza
@@ -21,21 +37,24 @@ const RANDOM_SEED := 0                        # 0 = aleatorio; otro número = se
 # ---------------------------------------------------------------- GOTAS DE AGUA
 const ENABLE_RANDOM_WATER_DROPS := true
 const WATER_DROP_MODE := "musical"            # "musical" (cuantizadas al pulso) o "free"
-const WATER_DROP_VOLUME_DB := -6.0            # sube este número para oírlas más
-const WATER_DROP_MIN_INTERVAL := 1.2          # segundos entre gotas (mín.)
-const WATER_DROP_MAX_INTERVAL := 4.0          # segundos entre gotas (máx.)
+const WATER_DROP_VOLUME_DB := -3.0            # sube este número para oírlas más
+const WATER_DROP_MIN_INTERVAL := 0.8          # segundos entre gotas (mín.)
+const WATER_DROP_MAX_INTERVAL := 2.5          # segundos entre gotas (máx.)
 const WATER_DROP_GRID_BEATS := 0.5            # en modo musical: caen en corcheas
 
 # ---------------------------------------------------------------- VOLÚMENES (dB)
-const LOW_GUZHENG_VOLUME_DB := -7.0
-const HIGH_GUZHENG_VOLUME_DB := -9.0
-const BONGO_VOLUME_DB := -9.0
+## dB: -5 dB es MÁS FUERTE que -15 dB. Cada -6 dB ≈ la mitad de fuerte.
+const MUSIC_MASTER_DB := -4.0                 # bus "Music" completo
+const SFX_MASTER_DB := 0.0                    # bus "SFX" completo
+const LOW_GUZHENG_VOLUME_DB := -12.0
+const HIGH_GUZHENG_VOLUME_DB := -16.0
+const BONGO_VOLUME_DB := -17.0
 const MEOW_VOLUME_DB := -11.0
 const URGENT_MEOW_VOLUME_DB := -8.0
 const PURR_VOLUME_DB := -12.0
-const AMBIENT_VOLUME_DB := -12.0              # agua/viento/aves: siempre presente
-const STORM_VOLUME_DB := -8.0                 # tormenta de hojas (según intensidad)
-const WIND_GUST_VOLUME_DB := -12.0
+const AMBIENT_VOLUME_DB := -18.0              # agua/viento/aves: siempre presente
+const STORM_VOLUME_DB := -14.0                # tormenta de hojas (según intensidad)
+const WIND_GUST_VOLUME_DB := -16.0
 
 # ---------------------------------------------------------------- DEPURACIÓN
 const MUSIC_DEBUG := false                    # true = valida/imprime compás, frases y voces

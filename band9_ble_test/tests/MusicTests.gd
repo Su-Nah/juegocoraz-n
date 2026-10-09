@@ -158,7 +158,7 @@ func test_base_sequence() -> void:
 	mp.set_random_phrases_enabled(false)
 	for id in ["low_guzheng", "high_guzheng", "bongos"]:
 		mp.set_instrument_randomization(id, true)   # sin el interruptor general no cuenta
-	var ev := simulate(mp, 12 * 4 * 60.0 / 90.0)
+	var ev := simulate(mp, 12 * 4 * 60.0 / mp.clock.bpm)
 	for id in ["low_guzheng", "high_guzheng", "bongos"]:
 		var seq := phrases_by_bar(ev, id).slice(0, 10)
 		check(seq == [0, 1, 2, 3, 0, 1, 2, 3, 0, 1], "%s sigue 1→2→3→4: %s" % [id, str(seq.map(func(x): return x + 1))])
@@ -172,7 +172,7 @@ func run_random(seed_v: int, ids: Array, bars: int) -> Dictionary:
 		mp.set_instrument_randomization(id, ids.has(id))
 		mp.tracks[id].rng.seed = seed_v + i * 7919
 		i += 1
-	var ev := simulate(mp, bars * 4 * 60.0 / 90.0)
+	var ev := simulate(mp, bars * 4 * 60.0 / mp.clock.bpm)
 	var r := {}
 	for id in ["low_guzheng", "high_guzheng", "bongos"]:
 		r[id] = phrases_by_bar(ev, id).slice(0, bars - 1)

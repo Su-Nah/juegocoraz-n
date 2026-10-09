@@ -30,6 +30,7 @@ func emit_drop() -> void:
 	g.visible = true
 	add_child(g)
 	var tw := create_tween()
+	tw.tween_property(g, "position:y", _onda.position.y, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tw.tween_callback(func():
 		g.queue_free()
 		_ripple())

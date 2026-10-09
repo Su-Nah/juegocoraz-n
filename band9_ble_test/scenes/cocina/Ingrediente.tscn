@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/cocina/cuenco.png" id="3"]
 
 [node name="Ingrediente" type="Node2D" groups=["ingrediente"]]
+z_index = 2
 script = ExtResource("1")
 hit_size = Vector2(120, 100)
 hit_offset = Vector2(0, -36)

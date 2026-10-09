@@ -50,6 +50,9 @@ var _blink_t := 3.0
 var _say_t := 0.0
 var _purring := false
 var _base_y := 0.0
+var _bob_ph := 0.0
+var _bob_amp := 1.5
+var _tail_ph := 0.0
 
 @onready var pose: Node2D = $Pose
 @onready var cabeza: Node2D = $Pose/Cabeza
@@ -188,7 +191,6 @@ func _update_knock(dt: float) -> void:
 ## Entrega desde la bandeja. Devuelve true si era su pedido.
 func receive(d: Dictionary) -> bool:
 	if wants(d):
-		say("♥")
 		_leave("served")
 		return true
 	say("¿?")
@@ -202,7 +204,6 @@ func receive(d: Dictionary) -> bool:
 func pet() -> void:
 	if is_urgent():
 		urgent_t = 0.0
-		say("prrr")
 		fu_reacted.emit(self)
 	else:
 		say("miau?")
@@ -228,10 +229,13 @@ func _animate(dt: float) -> void:
 		bob_speed = 14.0
 		bob_amp = 6.0
 	var squash := 0.06 if _purring else 0.0
-	pose.position.y = sin(_t * bob_speed) * bob_amp
+	_bob_ph += dt * bob_speed * tempo
+	_bob_amp = move_toward(_bob_amp, bob_amp, dt * 6.0)
+	pose.position.y = sin(_bob_ph) * _bob_amp
 	pose.scale = Vector2(1.0 + squash, 1.0 - squash)
 	var tail_speed := 1.0 + 4.0 * activity + (4.0 if kind == "impaciente" else 0.0)
-	cola.rotation = 1.15 + sin(_t * tail_speed) * (0.2 + 0.5 * activity) * (0.5 if _purring else 1.0)
+	_tail_ph += dt * tail_speed * tempo
+	cola.rotation = 1.15 + sin(_tail_ph) * (0.2 + 0.5 * activity) * (0.5 if _purring else 1.0)
 	# Ojos: cerrados al ronronear o parpadeando
 	_blink_t -= dt
 	if _blink_t <= -0.15:
@@ -264,7 +268,7 @@ func _animate(dt: float) -> void:
 		$Patas/PataD.position = Vector2(22, -4 - reach2 * (1.0 if wants_hint() else 0.4))
 	else:
 		patas.visible = false
-	scale = Vector2.ONE * (1.06 if highlighted else 1.0)
+	scale = scale.move_toward(Vector2.ONE * (1.06 if highlighted else 1.0), dt * 1.5)
 	# Habla
 	_say_t -= dt
 	habla.modulate.a = clampf(_say_t, 0.0, 1.0)
