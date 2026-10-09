@@ -58,7 +58,7 @@ func _ready() -> void:
 	clientela.fu_calmada.connect(func(_c): if mode == Mode.PLAY: stability.false_urgency_ignored())
 	clientela.fu_reaccion.connect(func(_c): if mode == Mode.PLAY: stability.false_urgency_reacted())
 	clientela.tiro.connect(_on_knock)
-	clientela.maullido.connect(func(u): Sfx.play("meow_urgent" if u else "meow", -7.0 if u else -13.0, randf_range(0.92, 1.12)))
+	clientela.maullido.connect(func(u): Sfx.play_variation("meow_urgent" if u else "meow"))
 	companero.left.connect(func(_c, r): if r == "served": _on_mochi_served())
 	manos.accion.connect(_on_player_action)
 	manos.bola_puesta.connect(func(_id): Sfx.play("pop", -10.0, randf_range(0.95, 1.1)); _progress_t = 0.0)

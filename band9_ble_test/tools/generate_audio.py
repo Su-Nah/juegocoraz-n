@@ -9,6 +9,7 @@ permanezcan sincronizadas en loop. Sustitúyelas por grabaciones reales con el m
 nombre y duración cuando existan.
 """
 import os
+import sys
 import wave
 import numpy as np
 
@@ -32,6 +33,10 @@ DISSONANT = 63
 
 
 def save(name, x, peak=0.8):
+    # Nunca sobrescribe audio real que ya esté en el proyecto (usa --force).
+    if os.path.exists(os.path.join(OUT, name)) and "--force" not in sys.argv:
+        print("  (existe, no se toca)", name)
+        return
     x = np.asarray(x, dtype=np.float64)
     m = np.max(np.abs(x)) or 1.0
     x = x / m * peak
@@ -256,9 +261,6 @@ def sfx_bell():
 
 if __name__ == "__main__":
     save("layer0_ambient.wav", layer_ambient(), 0.7)
-    save("layer1_harmony.wav", layer_harmony(), 0.7)
-    save("layer2_pulse.wav", layer_pulse(), 0.7)
-    save("layer3_rhythm.wav", layer_rhythm(), 0.7)
     save("layer4_storm.wav", layer_storm(), 0.75)
     save("plim.wav", sfx_plim(), 0.6)
     save("meow.wav", sfx_meow(1.0), 0.6)

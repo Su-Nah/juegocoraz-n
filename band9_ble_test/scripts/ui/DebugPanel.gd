@@ -49,7 +49,8 @@ func _process(_dt: float) -> void:
 		"fase: %s (%.0fs)   presión juego: %d   efectiva: %.2f   tier: %d   protección: %s" % [d.phase().get("name", "-"), d.phase_time, d.pressure_level, d.effective_pressure, d.tier, "SÍ" if d.protecting else "no"],
 		"estado: %s   alivio: %.2f   eventos activos: %d" % [Physio.state_name(), d.relief, game.active_stimuli()],
 		"salidas → ambient %.2f · cat_activity %.2f · event_density %.2f · audio %.2f" % [d.ambient_intensity, d.cat_activity, d.event_density, d.audio_intensity],
-		"música: %s   ganancias %s" % [game.music.current_layer_name(), str(game.music.gains.map(func(g): return snappedf(g, 0.01)))],
+		"mezcla: %s   ganancias %s" % [game.music.current_layer_name(), str(game.music.gains.map(func(g): return snappedf(g, 0.01)))],
+		"música: %s" % game.music.music.debug_text(),
 		"simulador: %d BPM %s   [F1 secuencia 60→130→70 · F2 parar · +/- 5 BPM]" % [HeartRate.sim.target_bpm, "(secuencia)" if HeartRate.sim.is_playing_sequence() else ""],
 	])
 	_label.text = "\n".join(lines)

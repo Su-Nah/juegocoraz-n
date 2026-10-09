@@ -55,7 +55,10 @@ func _process(dt: float) -> void:
 		_shot()
 		print("RESULTADOS ", game.stability.stats)
 		print("VISTO ", seen.keys())
-		var need := ["ritual", "entrega", "bote", "travieso", "falsa_urgencia", "recuperacion", "reto", "se_fue"]
+		var mp = game.music.music
+		print("MÚSICA ", mp.debug_text(), " · eventos ", mp.scheduler.fired_total, " · buses ", AudioServer.bus_count)
+		seen["musica"] = mp.scheduler.fired_total > 50 and AudioServer.get_bus_index("Music") >= 0
+		var need := ["ritual", "entrega", "bote", "travieso", "falsa_urgencia", "recuperacion", "reto", "se_fue", "musica"]
 		var missing := need.filter(func(k): return not seen.has(k) or not seen[k])
 		print("SMOKE ", "OK" if missing.is_empty() else "FALTA " + str(missing))
 		get_tree().quit(0 if missing.is_empty() else 1)
@@ -80,6 +83,10 @@ func _bot_step() -> void:
 		return
 	if randf() < 0.02:
 		game.tap_at(game.campanilla.global_position + Vector2(0, 75))   # regulación
+		return
+	# En la fase de Presión, si aún ningún gato se ha ido, el bot deja esperar
+	# (comprueba que irse no es un castigo y que el juego sigue).
+	if game.mode == game.Mode.PLAY and game.director.phase_index == 2 and not seen.has("se_fue"):
 		return
 	var target: Node2D = null
 	if game.companero.is_active():

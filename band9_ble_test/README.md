@@ -131,7 +131,11 @@ El shader `mood.gdshader` mueve juntos saturación, contraste, brillo, matiz y v
 No es "azul = calma / rojo = ansiedad".
 
 ### Audio
-El inicio usa solo **agua + koto en escala yo** (pentatónica sin semitonos, consonante). Luego entran el pulso, el ritmo y la tormenta. La única disonancia es **un Eb leve y ocasional** dentro de la capa de tormenta. En la recuperación sale primero la percusión y el agua gana espacio. Todo es crossfade.
+- **Música:** pieza dinámica en 4/4 con Guzheng grave, Guzheng agudo y Bongoes (4 frases cada uno), todos con **un solo reloj musical**. Lleva programación anticipada, pool de voces y caché.
+- **Gotas de agua:** sincronizadas al pulso.
+- **Separados del reloj musical:** el ambiente y la tormenta (bus Ambient) y los maullidos y ronroneos variados (bus SFX).
+
+Todo se configura en **`scripts/music/MusicConfig.gd`**: BPM, aleatorización por instrumento, gotas, volúmenes y depuración. La documentación completa está en **`docs/MUSICA.md`**.
 
 ### Resultados (métricas del juego, no clínicas)
 - estabilidad, mostrada con gotas
@@ -154,6 +158,8 @@ Cierra con "No necesitabas atenderlo todo."
 **Editor (Godot 4.3+):** F5 → *Simulador (desarrollo)* → *Abrir el puesto*.
 - **F3:** panel técnico (BPM, línea base, estado, salidas del director, capas).
 - **F1:** secuencia de BPM simulada. **F2:** pararla. **+ / −:** ajustar el BPM simulado.
+
+**Pruebas de música:** `godot --headless -s res://tests/MusicTests.gd` (ritmo, tempo, sincronización, aleatorización, pausa, carga) y `godot --headless -s res://tests/MusicRealtime.gd` (30 s en tiempo real).
 
 **Prueba automática:** `godot --headless res://tests/SmokeTest.tscn`. Juega la partida completa con un bot que construye dangos (por toques y arrastres), se equivoca y usa el bote, toca la campanilla y deja ir gatos. Debe terminar en `SMOKE OK`.
 

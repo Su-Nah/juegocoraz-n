@@ -1,0 +1,78 @@
+## =====================================================================
+##  CONFIGURACIÓN MUSICAL — el único archivo que normalmente hay que tocar.
+##  Cambia true/false o los números y vuelve a ejecutar el juego.
+## =====================================================================
+extends RefCounted
+
+# ---------------------------------------------------------------- TEMPO
+const BPM := 90.0                     # tempo de la pieza (4/4)
+
+# ---------------------------------------------------------------- FRASES ALEATORIAS
+## Interruptor general. Si es false, NINGÚN instrumento aleatoriza
+## (aunque su opción individual esté en true): compás 1→frase 1, 2→2, 3→3, 4→4, 5→1…
+const ENABLE_RANDOM_PHRASES := false
+## Por instrumento (solo cuentan si ENABLE_RANDOM_PHRASES = true).
+const RANDOMIZE_LOW_GUZHENG := false
+const RANDOMIZE_HIGH_GUZHENG := false
+const RANDOMIZE_BONGOS := false
+const AVOID_IMMEDIATE_PHRASE_REPEAT := true   # no repetir la misma frase dos compases seguidos
+const RANDOM_SEED := 0                        # 0 = aleatorio; otro número = secuencia reproducible
+
+# ---------------------------------------------------------------- GOTAS DE AGUA
+const ENABLE_RANDOM_WATER_DROPS := true
+const WATER_DROP_MODE := "musical"            # "musical" (cuantizadas al pulso) o "free"
+const WATER_DROP_VOLUME_DB := -6.0            # sube este número para oírlas más
+const WATER_DROP_MIN_INTERVAL := 1.2          # segundos entre gotas (mín.)
+const WATER_DROP_MAX_INTERVAL := 4.0          # segundos entre gotas (máx.)
+const WATER_DROP_GRID_BEATS := 0.5            # en modo musical: caen en corcheas
+
+# ---------------------------------------------------------------- VOLÚMENES (dB)
+const LOW_GUZHENG_VOLUME_DB := -7.0
+const HIGH_GUZHENG_VOLUME_DB := -9.0
+const BONGO_VOLUME_DB := -9.0
+const MEOW_VOLUME_DB := -11.0
+const URGENT_MEOW_VOLUME_DB := -8.0
+const PURR_VOLUME_DB := -12.0
+const AMBIENT_VOLUME_DB := -12.0              # agua/viento/aves: siempre presente
+const STORM_VOLUME_DB := -8.0                 # tormenta de hojas (según intensidad)
+const WIND_GUST_VOLUME_DB := -12.0
+
+# ---------------------------------------------------------------- DEPURACIÓN
+const MUSIC_DEBUG := false                    # true = valida/imprime compás, frases y voces
+
+# =====================================================================
+#  Ajustes internos (normalmente no hace falta tocarlos)
+# =====================================================================
+const BEATS_PER_BAR := 4
+## La mezcla sigue al estado del juego (calma: agua+guzheng; activación: entran bongos…).
+## false = los tres instrumentos siempre a volumen completo.
+const ADAPTIVE_MIX := true
+const SCHEDULE_AHEAD_SECONDS := 0.12          # ventana de programación anticipada
+const MAX_LOW_GUZHENG_VOICES := 8
+const MAX_HIGH_GUZHENG_VOICES := 6
+const MAX_BONGO_VOICES := 4
+const MAX_WATER_VOICES := 3
+const MAX_TOTAL_MUSIC_VOICES := 18
+## Microvariación (0 = precisión total).
+const GUZHENG_VELOCITY_VARIATION := 0.08      # ±8 % de intensidad
+const GUZHENG_TIMING_VARIATION_BEATS := 0.0
+const GUZHENG_PITCH_VARIATION := 0.0
+const MEOW_PITCH_MIN := 0.95
+const MEOW_PITCH_MAX := 1.05
+const PURR_PITCH_MIN := 0.97
+const PURR_PITCH_MAX := 1.03
+
+const GUZHENG_DIR := "res://assets/audio/guzheng/"
+const BONGO_SAMPLES := {
+	"bongo1": "res://assets/audio/gen/bongo1.wav",   # agudo
+	"bongo2": "res://assets/audio/gen/bongo2.wav",   # intermedio
+	"bongo3": "res://assets/audio/gen/bongo3.wav",   # grave intermedio
+	"bongo4": "res://assets/audio/gen/bongo4.wav",   # grave
+}
+const VARIATIONS := {
+	"meow": ["res://assets/audio/gen/meow.wav", "res://assets/audio/gen/meow2.wav", "res://assets/audio/gen/meow3.wav", "res://assets/audio/gen/meow4.wav"],
+	"meow_urgent": ["res://assets/audio/gen/meow_urgent.wav", "res://assets/audio/gen/meow_urgent2.wav", "res://assets/audio/gen/meowurgent3.wav"],
+	"purr": ["res://assets/audio/gen/purr.wav", "res://assets/audio/gen/purr2.wav", "res://assets/audio/gen/purr3.wav", "res://assets/audio/gen/purr4.wav"],
+	"water": ["res://assets/audio/gen/waterdop1.wav", "res://assets/audio/gen/waterdrop2.wav", "res://assets/audio/gen/waterdrop3.wav", "res://assets/audio/gen/waterdrop4.wav", "res://assets/audio/gen/waterdrop5.wav"],
+	"wind": ["res://assets/audio/gen/windwoosh.wav"],
+}
