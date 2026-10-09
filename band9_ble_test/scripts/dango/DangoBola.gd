@@ -11,7 +11,6 @@ const PALETTE := preload("res://resources/dango_paleta.tres")
 		_refresh()
 
 @onready var _bola: Sprite2D = $Bola
-@onready var _sombra: Sprite2D = $Sombra
 
 func _ready() -> void:
 	_refresh()

@@ -1,37 +1,37 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://p7k8te58cwb"]
 
-[ext_resource type="Texture2D" path="res://assets/art/ambiente/poste.png" id="1"]
-[ext_resource type="Texture2D" path="res://assets/art/ambiente/techo.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://by8vf8qfk5yqj" path="res://assets/art/ambiente/poste.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://cojkcvtymxb5g" path="res://assets/art/ambiente/techo.png" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ambiente/Cortinas.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ambiente/Farol.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/cocina/Campanilla.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/cocina/Tablilla.tscn" id="6"]
 
-[node name="Puesto" type="Node2D"]
+[node name="Puesto" type="Node2D" unique_id=208119309]
 
-[node name="PosteI" type="Sprite2D" parent="."]
+[node name="PosteI" type="Sprite2D" parent="." unique_id=680800036]
 position = Vector2(112, 300)
 texture = ExtResource("1")
 
-[node name="PosteD" type="Sprite2D" parent="."]
+[node name="PosteD" type="Sprite2D" parent="." unique_id=304846623]
 position = Vector2(1168, 300)
 texture = ExtResource("1")
 
-[node name="Techo" type="Sprite2D" parent="."]
+[node name="Techo" type="Sprite2D" parent="." unique_id=142908913]
 position = Vector2(640, 105)
 texture = ExtResource("2")
 
-[node name="Cortinas" parent="." instance=ExtResource("3")]
-position = Vector2(0, 140)
+[node name="Cortinas" parent="." unique_id=428634401 instance=ExtResource("3")]
+position = Vector2(7, 140)
 
-[node name="FarolI" parent="." instance=ExtResource("4")]
-position = Vector2(165, 140)
+[node name="FarolI" parent="." unique_id=435115356 instance=ExtResource("4")]
+position = Vector2(198, 145)
 
-[node name="FarolD" parent="." instance=ExtResource("4")]
-position = Vector2(1100, 140)
+[node name="FarolD" parent="." unique_id=895083722 instance=ExtResource("4")]
+position = Vector2(1083, 144)
 
-[node name="Campanilla" parent="." instance=ExtResource("5")]
-position = Vector2(245, 140)
+[node name="Campanilla" parent="." unique_id=1460543833 instance=ExtResource("5")]
+position = Vector2(71, 140)
 
-[node name="Tablilla" parent="." instance=ExtResource("6")]
-position = Vector2(1215, 142)
+[node name="Tablilla" parent="." unique_id=826807142 instance=ExtResource("6")]
+position = Vector2(1180, 146)

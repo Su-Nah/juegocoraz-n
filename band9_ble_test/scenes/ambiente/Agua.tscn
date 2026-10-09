@@ -1,43 +1,35 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3 uid="uid://cq35cpsp6oj7b"]
 
-[ext_resource type="Shader" path="res://shaders/agua.gdshader" id="1"]
-[ext_resource type="Script" path="res://scripts/ambiente/Agua.gd" id="2"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/bambu.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/chorro.png" id="4"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/cuenco_piedra.png" id="5"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/agua_superficie.png" id="6"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/gota.png" id="7"]
-[ext_resource type="Texture2D" path="res://assets/art/agua/onda.png" id="8"]
+[ext_resource type="Script" uid="uid://dxw3ys0jtv40r" path="res://scripts/ambiente/Agua.gd" id="2"]
+[ext_resource type="Texture2D" uid="uid://b2y1gt8bldmxy" path="res://assets/art/agua/bambu.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://dmcok5hq8guhq" path="res://assets/art/agua/chorro.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://ou376of8oryb" path="res://assets/art/agua/cuenco_piedra.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://c0482yeijhg5y" path="res://assets/art/agua/gota.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://jq8haprmrv8p" path="res://assets/art/agua/onda.png" id="8"]
 
-[sub_resource type="ShaderMaterial" id="s1"]
-shader = ExtResource("1")
-
-[node name="Agua" type="Node2D"]
+[node name="Agua" type="Node2D" unique_id=252493567]
 script = ExtResource("2")
 
-[node name="Bambu" type="Sprite2D" parent="."]
+[node name="Bambu" type="Sprite2D" parent="." unique_id=1868474960]
 position = Vector2(40, -168)
 rotation = 0.18
 texture = ExtResource("3")
 
-[node name="Chorro" type="Sprite2D" parent="."]
-position = Vector2(-42, -110)
-scale = Vector2(1.6, 1.7)
-texture = ExtResource("4")
-
-[node name="Cuenco" type="Sprite2D" parent="."]
+[node name="Cuenco" type="Sprite2D" parent="." unique_id=811883358]
 texture = ExtResource("5")
 
-[node name="Superficie" type="Sprite2D" parent="."]
-material = SubResource("s1")
-position = Vector2(0, -34)
-scale = Vector2(0.8, 0.38)
-texture = ExtResource("6")
+[node name="Chorro" type="Sprite2D" parent="." unique_id=363020153]
+light_mask = 7
+visibility_layer = 514
+position = Vector2(-42, -98.7)
+scale = Vector2(1.6, 2.0531251)
+texture = ExtResource("4")
 
-[node name="Gota" type="Sprite2D" parent="."]
-position = Vector2(-42, -160)
+[node name="Gota" type="Sprite2D" parent="." unique_id=2058582900]
+position = Vector2(-40, -155)
 texture = ExtResource("7")
 
-[node name="Onda" type="Sprite2D" parent="."]
-position = Vector2(-42, -34)
+[node name="Onda" type="Sprite2D" parent="." unique_id=1672951974]
+position = Vector2(-42.499996, -25)
+scale = Vector2(0.73749995, 0.5)
 texture = ExtResource("8")

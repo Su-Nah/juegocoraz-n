@@ -1,30 +1,30 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://ivg83btpkeq4"]
 
-[ext_resource type="Script" path="res://scripts/dango/Dango.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/art/dango/palito.png" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/dango/DangoBola.tscn" id="3"]
+[ext_resource type="Script" uid="uid://nnelbpthifcg" path="res://scripts/dango/Dango.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://dtb8ofuk7csrw" path="res://assets/art/dango/palito.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://bvts8n2hkxdmo" path="res://scenes/dango/DangoBola.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/dango/Salsa.tscn" id="4"]
 
-[node name="Dango" type="Node2D"]
+[node name="Dango" type="Node2D" unique_id=2075195415]
 script = ExtResource("1")
 lower = "verde"
 middle = "blanca"
 upper = "rosa"
 
-[node name="Palito" type="Sprite2D" parent="."]
+[node name="Palito" type="Sprite2D" parent="." unique_id=1037979194]
 position = Vector2(0, -110)
 texture = ExtResource("2")
 
-[node name="BolaInferior" parent="." instance=ExtResource("3")]
+[node name="BolaInferior" parent="." unique_id=1972543171 instance=ExtResource("3")]
 position = Vector2(0, -70)
 
-[node name="BolaCentral" parent="." instance=ExtResource("3")]
+[node name="BolaCentral" parent="." unique_id=2055359828 instance=ExtResource("3")]
 position = Vector2(0, -122)
 color_id = "blanca"
 
-[node name="BolaSuperior" parent="." instance=ExtResource("3")]
+[node name="BolaSuperior" parent="." unique_id=820673337 instance=ExtResource("3")]
 position = Vector2(0, -174)
 color_id = "rosa"
 
-[node name="Salsa" parent="." instance=ExtResource("4")]
+[node name="Salsa" parent="." unique_id=418358394 instance=ExtResource("4")]
 visible = false

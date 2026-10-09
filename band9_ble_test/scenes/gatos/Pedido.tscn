@@ -1,21 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://duhydcvgsjtaq"]
 
-[ext_resource type="Script" path="res://scripts/gatos/Pedido.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/art/gato/bocadillo.png" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/dango/Dango.tscn" id="3"]
+[ext_resource type="Script" uid="uid://brjph5t6tftwh" path="res://scripts/gatos/Pedido.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bs48kibmgjjw" path="res://assets/art/gato/bocadillo.png" id="2"]
+[ext_resource type="PackedScene" uid="uid://ivg83btpkeq4" path="res://scenes/dango/Dango.tscn" id="3"]
 
-[node name="Pedido" type="Node2D"]
+[node name="Pedido" type="Node2D" unique_id=612384010]
 script = ExtResource("1")
 
-[node name="Bocadillo" type="Sprite2D" parent="."]
+[node name="Bocadillo" type="Sprite2D" parent="." unique_id=597904553]
 position = Vector2(0, -8)
 texture = ExtResource("2")
 
-[node name="Dango" parent="." instance=ExtResource("3")]
-position = Vector2(0, 44)
+[node name="Dango" parent="." unique_id=1192738283 instance=ExtResource("3")]
+position = Vector2(0, 27.00001)
 scale = Vector2(0.4, 0.4)
 
-[node name="Urgente" type="Label" parent="."]
+[node name="Urgente" type="Label" parent="." unique_id=1143953134]
 visible = false
 offset_left = -112.0
 offset_top = -70.0

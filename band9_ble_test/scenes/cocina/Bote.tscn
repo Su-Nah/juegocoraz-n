@@ -1,29 +1,20 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://bl22tdfdn13a7"]
 
-[ext_resource type="Script" path="res://scripts/cocina/Bote.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/art/cocina/bote.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/art/cocina/bote_tapa.png" id="3"]
+[ext_resource type="Script" uid="uid://bd3dx3utuajy4" path="res://scripts/cocina/Bote.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://mlup7l8880cg" path="res://assets/art/cocina/bote.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://coogpr3xuprpx" path="res://assets/art/cocina/bote_tapa.png" id="3"]
 
-[node name="Bote" type="Node2D"]
+[node name="Bote" type="Node2D" unique_id=264106720]
 script = ExtResource("1")
 hit_size = Vector2(130, 150)
 hit_offset = Vector2(0, -10)
 
-[node name="Cuerpo" type="Sprite2D" parent="."]
+[node name="Cuerpo" type="Sprite2D" parent="." unique_id=2072405769]
 texture = ExtResource("2")
 
-[node name="Tapa" type="Node2D" parent="."]
+[node name="Tapa" type="Node2D" parent="." unique_id=1793959117]
 position = Vector2(-52, -58)
 
-[node name="Sprite" type="Sprite2D" parent="Tapa"]
+[node name="Sprite" type="Sprite2D" parent="Tapa" unique_id=1741646181]
 position = Vector2(52, -4)
 texture = ExtResource("3")
-
-[node name="Etiqueta" type="Label" parent="."]
-offset_left = -22.0
-offset_top = 8.0
-offset_right = 40.0
-offset_bottom = 32.0
-theme_override_colors/font_color = Color(0.92, 0.95, 0.9, 1)
-theme_override_font_sizes/font_size = 15
-text = "bote"

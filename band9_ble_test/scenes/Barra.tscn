@@ -1,48 +1,47 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene format=3 uid="uid://ddkcmck7053fu"]
 
-[ext_resource type="Texture2D" path="res://assets/art/ambiente/barra.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://r4lp2hkclpj7" path="res://assets/art/ambiente/barra.png" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/cocina/Ingrediente.tscn" id="2"]
-[ext_resource type="Texture2D" path="res://assets/art/cocina/olla_salsa.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://c01dlhg8eidn7" path="res://assets/art/cocina/olla_salsa.png" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ambiente/Vapor.tscn" id="4"]
-[ext_resource type="PackedScene" path="res://scenes/ambiente/Agua.tscn" id="5"]
-[ext_resource type="Texture2D" path="res://assets/art/gato/cojin.png" id="6"]
+[ext_resource type="PackedScene" uid="uid://cq35cpsp6oj7b" path="res://scenes/ambiente/Agua.tscn" id="5"]
+[ext_resource type="Texture2D" uid="uid://yuabcsi7scjp" path="res://assets/art/gato/cojin.png" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/gatos/Gato.tscn" id="7"]
-[ext_resource type="Script" path="res://scripts/gatos/Companero.gd" id="8"]
+[ext_resource type="Script" uid="uid://ddrd2cfrhh0rm" path="res://scripts/gatos/Companero.gd" id="8"]
 
-[node name="Barra" type="Node2D"]
+[node name="Barra" type="Node2D" unique_id=56277660]
 
-[node name="Frente" type="Sprite2D" parent="."]
+[node name="Frente" type="Sprite2D" parent="." unique_id=1349316237]
 position = Vector2(640, 510)
 texture = ExtResource("1")
 
-[node name="IngVerde" parent="." instance=ExtResource("2")]
-position = Vector2(370, 432)
-ingredient_id = "verde"
+[node name="IngVerde" parent="." unique_id=375844601 instance=ExtResource("2")]
+position = Vector2(367, 432)
 
-[node name="IngBlanca" parent="." instance=ExtResource("2")]
-position = Vector2(610, 432)
+[node name="IngBlanca" parent="." unique_id=2076095134 instance=ExtResource("2")]
+position = Vector2(570, 432)
 ingredient_id = "blanca"
 
-[node name="IngRosa" parent="." instance=ExtResource("2")]
-position = Vector2(850, 432)
+[node name="IngRosa" parent="." unique_id=1759196719 instance=ExtResource("2")]
+position = Vector2(766, 432)
 ingredient_id = "rosa"
 
-[node name="IngSalsa" parent="." instance=ExtResource("2")]
-position = Vector2(1015, 432)
+[node name="IngSalsa" parent="." unique_id=1580894526 instance=ExtResource("2")]
+position = Vector2(967, 432)
 ingredient_id = "salsa"
 textura_recipiente = ExtResource("3")
 
-[node name="VaporSalsa" parent="." instance=ExtResource("4")]
+[node name="VaporSalsa" parent="." unique_id=2107756956 instance=ExtResource("4")]
 position = Vector2(1005, 375)
 
-[node name="Agua" parent="." instance=ExtResource("5")]
+[node name="Agua" parent="." unique_id=495919070 instance=ExtResource("5")]
 position = Vector2(1172, 430)
-scale = Vector2(1.1, 1.1)
+scale = Vector2(0.8, 0.8)
 
-[node name="Cojin" type="Sprite2D" parent="."]
+[node name="Cojin" type="Sprite2D" parent="." unique_id=1240231890]
 position = Vector2(95, 432)
 texture = ExtResource("6")
 
-[node name="Mochi" parent="." instance=ExtResource("7")]
+[node name="Mochi" parent="." unique_id=485356223 instance=ExtResource("7")]
 position = Vector2(95, 424)
 script = ExtResource("8")
