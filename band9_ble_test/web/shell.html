@@ -191,7 +191,10 @@ $GODOT_HEAD_INCLUDE
     setStatus('scanning');
     const options = exploreAll
       ? { acceptAllDevices: true, optionalServices: [HR_SERVICE].concat(OPTIONAL_SERVICES) }
-      : { filters: [{ services: [HR_SERVICE] }], optionalServices: OPTIONAL_SERVICES };
+      // Los filtros se combinan con O: aparece si anuncia el servicio HR O si su nombre es de Huawei
+      // (la Band 9 a veces no anuncia 0x180D aunque lo exponga al conectar).
+      : { filters: [{ services: [HR_SERVICE] }, { namePrefix: 'HUAWEI' }, { namePrefix: 'Huawei' }, { namePrefix: 'Band' }],
+          optionalServices: [HR_SERVICE].concat(OPTIONAL_SERVICES) };
     log('requestDevice(' + (exploreAll ? 'acceptAllDevices' : 'filtro Heart Rate 0x180D') + ')');
     try {
       device = await navigator.bluetooth.requestDevice(options);
