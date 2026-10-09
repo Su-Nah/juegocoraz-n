@@ -75,26 +75,36 @@ func start() -> void:
 
 ## EL CORAZÓN DIRIGE LA MÚSICA. `level` = intensidad cardíaca h * 3 (h = Physio.activation,
 ## activación relativa a la línea base, ya filtrada y protegida contra lecturas erróneas).
-##   h bajo  → solo guzheng grave, tempo BPM_MIN
-##   h sube  → el tempo acelera; entra el guzheng agudo, luego bongoes, luego tormenta
+##   h bajo  → solo agua (etapa 1), tempo BPM_MIN
+##   h sube  → el tempo acelera; etapas: +guzheng agudo → +guzheng grave → +bongoes
 ##   h baja  → el tempo vuelve a calmarse y las capas salen (fundidos LAYER_FADE_*).
 var heart := 0.0                      # h suavizado
-var _on := {"high": false, "bongos": false, "storm": false}
+var _on := {"storm": false}
+var stage := 1                        # 1 agua · 2 +agudo · 3 +grave · 4 +bongoes
+var _stage_t := 0.0
 var _bpm := CFG.BPM_MIN
 
 func update(dt: float, level: float, _recovering: bool, _calm_sustained: bool, purr: float) -> void:
 	heart = move_toward(heart, clampf(level / 3.0, 0.0, 1.0), dt * 0.5)
 	var h := heart
-	_on["high"] = h >= CFG.HIGH_GUZHENG_ENTER or (_on["high"] and h >= CFG.HIGH_GUZHENG_ENTER - CFG.LAYER_HYSTERESIS)
-	_on["bongos"] = h >= CFG.BONGOS_ENTER or (_on["bongos"] and h >= CFG.BONGOS_ENTER - CFG.LAYER_HYSTERESIS)
+	# Etapas en orden estricto, una por paso, con histéresis.
+	var enter := [0.0, 0.0, CFG.HIGH_GUZHENG_ENTER, CFG.LOW_GUZHENG_ENTER, CFG.BONGOS_ENTER]
+	_stage_t += dt
+	if _stage_t >= CFG.LAYER_FADE_IN_SECONDS:   # una etapa termina de entrar antes de la siguiente
+		if stage < 4 and h >= enter[stage + 1]:
+			stage += 1
+			_stage_t = 0.0
+		elif stage > 1 and h < enter[stage] - CFG.LAYER_HYSTERESIS:
+			stage -= 1
+			_stage_t = 0.0
 	_on["storm"] = h >= CFG.STORM_ENTER or (_on["storm"] and h >= CFG.STORM_ENTER - CFG.LAYER_HYSTERESIS)
 	# [ambiente, guzheng agudo, bongoes, (bongoes), tormenta]; el guzheng grave va aparte.
 	var all := not CFG.ADAPTIVE_MIX
-	targets = [1.0, 1.0 if (_on["high"] or all) else 0.0, 1.0 if (_on["bongos"] or all) else 0.0,
-		1.0 if (_on["bongos"] or all) else 0.0, 1.0 if _on["storm"] else 0.0]
+	targets = [1.0, 1.0 if (stage >= 2 or all) else 0.0, 1.0 if (stage >= 4 or all) else 0.0,
+		1.0 if (stage >= 4 or all) else 0.0, 1.0 if _on["storm"] else 0.0]
 	for i in 5:
 		gains[i] = _fade(gains[i], targets[i], dt)
-	_low_gain = _fade(_low_gain, 1.0 if started else 0.0, dt)
+	_low_gain = _fade(_low_gain, 1.0 if (started and (stage >= 3 or all)) else 0.0, dt)
 	_ambient.volume_db = CFG.AMBIENT_VOLUME_DB          # siempre presente, sin reinicios
 	_storm.volume_db = _db(gains[4]) + CFG.STORM_VOLUME_DB
 	music.set_instrument_gain("low_guzheng", _low_gain)

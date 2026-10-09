@@ -28,11 +28,13 @@ func _process(dt: float) -> void:
 		t = 0.0
 	if phase.begins_with("calma") or phase == "sube" or phase == "baja":
 		if phase == "calma2" and t > 12.0:
-			phase = "sube"; t = 0.0; HeartRate.sim.target_bpm = 110
+			phase = "sube"; t = 0.0
+			HeartRate.sim.play_sequence([76, 82, 88, 94, 100, 106], 5.0)   # subida gradual
 		elif phase == "sube" and t > 30.0:
-			phase = "baja"; t = 0.0; HeartRate.sim.target_bpm = 70
+			phase = "baja"; t = 0.0
+			HeartRate.sim.play_sequence([100, 92, 84, 76, 70], 5.0)       # bajada gradual
 		elif phase == "baja" and t > 30.0:
 			print("FIN"); get_tree().quit()
-	if log_t >= 3.0:
+	if log_t >= 2.0 and phase != "ritual":
 		log_t = 0.0
-		print("%-7s t=%4.0fs HR %3d act %.2f h %.2f | BPM música %5.1f | grave %.2f agudo %.2f bongo %.2f tormenta %.2f" % [phase, t, HeartRate.sim.target_bpm, Physio.activation, ml.heart, ml.music.get_bpm(), ml._low_gain, ml.gains[1], ml.gains[2], ml.gains[4]])
+		print("%-7s t=%4.0fs HR %3d act %.2f h %.2f | etapa %d | BPM música %5.1f | agudo %.2f grave %.2f bongo %.2f tormenta %.2f" % [phase, t, HeartRate.sim.target_bpm, Physio.activation, ml.heart, ml.stage, ml.music.get_bpm(), ml.gains[1], ml._low_gain, ml.gains[2], ml.gains[4]])

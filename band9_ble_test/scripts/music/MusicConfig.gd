@@ -14,10 +14,14 @@ const BPM_MIN := 66.0                 # tempo en calma
 const BPM_MAX := 104.0                # tempo máximo permitido
 const HEART_TEMPO_INFLUENCE := 1.0    # 0 = el corazón no cambia el tempo · 1 = recorrido completo
 const TEMPO_SLEW_BPM_PER_SEC := 3.0   # cuán rápido sigue el tempo al corazón (suave)
-## Umbrales de h para que entre cada capa (sale un poco por debajo: histéresis).
-const HIGH_GUZHENG_ENTER := 0.25
-const BONGOS_ENTER := 0.50
-const STORM_ENTER := 0.75
+## ETAPAS (h = intensidad cardíaca 0..1, activación relativa a tu línea base):
+##   1 agua · 2 +guzheng agudo · 3 +guzheng grave · 4 +bongoes
+## Cada capa ENTRA al superar su umbral y SALE al bajar de (umbral - LAYER_HYSTERESIS).
+## Se avanza/retrocede UNA etapa cada vez, siempre en este orden (nunca bongoes antes que guzheng).
+const HIGH_GUZHENG_ENTER := 0.15
+const LOW_GUZHENG_ENTER := 0.35
+const BONGOS_ENTER := 0.55
+const STORM_ENTER := 0.80             # tormenta de hojas (ambiente), aparte de las etapas
 const LAYER_HYSTERESIS := 0.08
 ## Fundidos de cada capa (segundos). Se pueden invertir a mitad sin saltos.
 const LAYER_FADE_IN_SECONDS := 2.5
@@ -47,8 +51,8 @@ const WATER_DROP_GRID_BEATS := 0.5            # en modo musical: caen en corchea
 const MUSIC_MASTER_DB := -4.0                 # bus "Music" completo
 const SFX_MASTER_DB := 0.0                    # bus "SFX" completo
 const LOW_GUZHENG_VOLUME_DB := -12.0
-const HIGH_GUZHENG_VOLUME_DB := -16.0
-const BONGO_VOLUME_DB := -17.0
+const HIGH_GUZHENG_VOLUME_DB := -13.0
+const BONGO_VOLUME_DB := -4.0     # samples cortos: necesitan más nivel que el guzheng
 const MEOW_VOLUME_DB := -11.0
 const URGENT_MEOW_VOLUME_DB := -8.0
 const PURR_VOLUME_DB := -12.0
