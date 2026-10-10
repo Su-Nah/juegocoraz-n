@@ -116,6 +116,7 @@ func _start_dango_drag(p: Vector2) -> void:
 # ------------------------------------------------------------------ MOVE
 func move(p: Vector2) -> void:
 	if not is_dragging():
+		_update_hover(p)
 		return
 	if p.distance_to(_press_pos) > C.DRAG_THRESHOLD:
 		_moved = true
@@ -218,3 +219,14 @@ func _discard_float() -> void:
 	tw.chain().tween_callback(f.queue_free)
 	bandeja.clear()
 	descartado.emit()
+
+## Respuesta inmediata al pasar por encima: mano de "se puede tocar" y el cuenco se agranda.
+func _update_hover(p: Vector2) -> void:
+	var over := false
+	for ing in ingredientes:
+		var h: bool = habilitado and (ing.hit(p) and ing.usable() or ing.hit_floor(p))
+		ing.set_hover(h)
+		over = over or h
+	if habilitado and not over:
+		over = (bandeja.hit(p) and not bandeja.is_empty()) or (bote.hit(p) and not bandeja.is_empty()) or _cat_at(p) != null
+	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND if over else Input.CURSOR_ARROW)

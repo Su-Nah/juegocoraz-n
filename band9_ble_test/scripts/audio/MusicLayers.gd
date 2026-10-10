@@ -68,6 +68,8 @@ func start() -> void:
 	if started:
 		return
 	started = true
+	_bpm = target_bpm()          # arranca ya al pulso actual
+	music.set_bpm(_bpm)
 	for p in [_ambient, _storm]:
 		if p.stream:
 			p.play()
@@ -82,7 +84,13 @@ var heart := 0.0                      # h suavizado
 var _on := {"storm": false}
 var stage := 1                        # 1 agua · 2 +agudo · 3 +grave · 4 +bongoes
 var _stage_t := 0.0
-var _bpm := CFG.BPM_MIN
+var _bpm := CFG.BPM
+
+## BPM musical objetivo = pulso actual (sin lecturas válidas aún: tempo de partida).
+func target_bpm() -> float:
+	if Physio.music_hr <= 0.0:
+		return CFG.BPM
+	return clampf(Physio.music_hr * CFG.HEART_TO_MUSIC_RATIO, CFG.BPM_MIN, CFG.BPM_MAX)
 
 func update(dt: float, level: float, _recovering: bool, _calm_sustained: bool, purr: float) -> void:
 	heart = move_toward(heart, clampf(level / 3.0, 0.0, 1.0), dt * 0.5)
@@ -111,8 +119,7 @@ func update(dt: float, level: float, _recovering: bool, _calm_sustained: bool, p
 	music.set_instrument_gain("high_guzheng", gains[1])
 	music.set_instrument_gain("bongos", gains[2])
 	# Tempo: sigue al corazón con suavidad, sin reiniciar la pieza (MusicClock re-ancla).
-	var target_bpm := lerpf(CFG.BPM_MIN, CFG.BPM_MAX, clampf(h * CFG.HEART_TEMPO_INFLUENCE, 0.0, 1.0))
-	_bpm = move_toward(_bpm, target_bpm, dt * CFG.TEMPO_SLEW_BPM_PER_SEC)
+	_bpm = move_toward(_bpm, target_bpm(), dt * CFG.TEMPO_SLEW_BPM_PER_SEC)
 	if started and absf(_bpm - music.get_bpm()) > 0.25:
 		music.set_bpm(_bpm)
 	_update_variations(dt, purr)

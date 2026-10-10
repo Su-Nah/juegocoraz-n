@@ -65,6 +65,8 @@ func _ready() -> void:
 	patas.visible = false
 	habla.modulate.a = 0.0
 	pedido.visible = false
+	pedido.scale = Vector2.ONE * 1.3        # pedido legible a distancia
+	pedido.position.y -= 20.0
 
 func setup(p_kind: String, p_order: Dictionary, p_patience: float, p_seat: int) -> void:
 	kind = p_kind

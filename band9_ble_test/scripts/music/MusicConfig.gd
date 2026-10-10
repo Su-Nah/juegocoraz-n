@@ -8,12 +8,13 @@ extends RefCounted
 const BPM := 66.0                     # tempo de partida (calma). El corazón lo sube hacia BPM_MAX.
 
 # ---------------------------------------------------------------- EL CORAZÓN DIRIGE LA MÚSICA
-## Intensidad cardíaca h (0..1) = activación relativa a TU línea base (Physio.activation).
-## Tempo musical = lerp(BPM_MIN, BPM_MAX, h * HEART_TEMPO_INFLUENCE).
-const BPM_MIN := 66.0                 # tempo en calma
-const BPM_MAX := 104.0                # tempo máximo permitido
-const HEART_TEMPO_INFLUENCE := 1.0    # 0 = el corazón no cambia el tempo · 1 = recorrido completo
-const TEMPO_SLEW_BPM_PER_SEC := 3.0   # cuán rápido sigue el tempo al corazón (suave)
+## TEMPO = PULSO ACTUAL: BPM musical objetivo = BPM cardíaco actual × HEART_TO_MUSIC_RATIO.
+## (Si late a 60 → 60; a 112 → 112, aunque 112 sea tu basal.) El basal NO cambia el tempo:
+## solo se usa para la intensidad relativa h (capas, dificultad).
+const HEART_TO_MUSIC_RATIO := 1.0     # 1.0 = mismo número; 0.5 = medio tempo, etc.
+const BPM_MIN := 40.0                 # límites de seguridad del tempo
+const BPM_MAX := 180.0
+const TEMPO_SLEW_BPM_PER_SEC := 12.0  # velocidad máxima de cambio del tempo (suave pero rápido)
 ## ETAPAS (h = intensidad cardíaca 0..1, activación relativa a tu línea base):
 ##   1 agua · 2 +guzheng agudo · 3 +guzheng grave · 4 +bongoes
 ## Cada capa ENTRA al superar su umbral y SALE al bajar de (umbral - LAYER_HYSTERESIS).

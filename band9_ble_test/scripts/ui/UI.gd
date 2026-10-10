@@ -9,6 +9,7 @@ signal diagnostico()
 signal continuar()
 signal inicio()
 signal reintentar()
+signal saltar_tutorial()
 
 const GOTA := preload("res://assets/art/agua/gota.png")
 const BOLA := preload("res://assets/art/dango/bola_rosa.png")
@@ -21,6 +22,11 @@ const BOLA := preload("res://assets/art/dango/bola_rosa.png")
 @onready var resultados: Control = $Resultados
 @onready var contenido: VBoxContainer = $Resultados/Margen/V/Contenido
 @onready var debug: Node = $Debug
+@onready var pulso: Control = $Pulso
+@onready var _guia: Control = $Guia
+@onready var _guia_txt: Label = $Guia/V/Texto
+@onready var _saltar: Button = $Guia/V/Saltar
+var _guia_t := -1.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -38,13 +44,46 @@ func _ready() -> void:
 	$SinSenal/Reconectar.pressed.connect(func(): conectar.emit())
 	$Resultados/Margen/V/Botones/Otra.pressed.connect(func(): reintentar.emit())
 	$Resultados/Margen/V/Botones/Inicio.pressed.connect(func(): inicio.emit())
+	_saltar.pressed.connect(func(): saltar_tutorial.emit())
+	$AyudaBtn.pressed.connect(func(): $Ayuda.visible = not $Ayuda.visible)
+	$Ayuda/V/Cerrar.pressed.connect(func(): $Ayuda.visible = false)
 	ocultar_todo()
+
+## Texto guía grande y legible (proyector). dur < 0 = hasta que cambie.
+func guia(text: String, dur: float = -1.0) -> void:
+	_guia.visible = true
+	if _guia_txt.text != text:
+		_guia_txt.text = text
+	_guia_t = dur
+
+func ocultar_guia() -> void:
+	_guia.visible = false
+	_guia_t = -1.0
+
+func set_modo_juego(ritual: bool) -> void:
+	pulso.visible = true
+	$AyudaBtn.visible = true
+	_saltar.visible = ritual
+
+func resaltar_pulso(on: bool) -> void:
+	pulso.highlight = on
+
+func _process(dt: float) -> void:
+	if _guia_t > 0.0:
+		_guia_t -= dt
+		if _guia_t <= 0.0:
+			ocultar_guia()
 
 func ocultar_todo() -> void:
 	titulo.visible = false
 	pausa.visible = false
 	sin_senal.visible = false
 	resultados.visible = false
+	if is_node_ready():
+		ocultar_guia()
+		pulso.visible = false
+		$AyudaBtn.visible = false
+		$Ayuda.visible = false
 
 func mostrar_titulo() -> void:
 	ocultar_todo()

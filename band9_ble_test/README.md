@@ -1,5 +1,8 @@
 # Gatos en la barra
 
+> **Tempo = pulso actual.** El BPM musical sigue al BPM cardíaco de ahora (60 → 60, 112 → 112), no al basal. El basal solo mide la intensidad relativa (capas y dificultad). Ajustes: `HEART_TO_MUSIC_RATIO`, `BPM_MIN`/`BPM_MAX` y `TEMPO_SLEW_BPM_PER_SEC` en `scripts/music/MusicConfig.gd`; el filtro del tempo es `MUSIC_HR_SMOOTH` en `Config.gd`.
+> **Tutorial jugable** (`scripts/game/Coach.gd`): llegada → el agua late con tu pulso → primer dango con demostraciones de los controles reales (cada una desaparece al aprenderla) → el tempo sigue tu pulso → demanda creciente → campanilla para parar y respirar → cierre. El tiempo de línea base nunca corta un pedido en curso. Botón «? Controles» siempre disponible.
+
 Un pequeño puesto japonés de dangos con gatos en la barra. Es una experiencia de autorregulación con biofeedback: **no puedes controlar el mundo, pero puedes influir en tu respuesta ante él.** La única señal fisiológica es la frecuencia cardíaca de la Huawei Band 9:
 
 ```

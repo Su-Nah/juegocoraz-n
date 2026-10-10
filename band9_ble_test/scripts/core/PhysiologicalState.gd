@@ -14,6 +14,9 @@ signal baseline_ready(baseline: float)
 const C := preload("res://scripts/core/Config.gd")
 
 var current_hr := 0.0
+## BPM para el TEMPO musical: sigue al pulso ACTUAL (no al basal) con un filtro
+## corto por lectura válida (Config.MUSIC_HR_SMOOTH). Solo cambia con lecturas nuevas.
+var music_hr := 0.0
 var filtered_hr := 0.0
 var baseline_hr := 0.0
 var baseline_sd := 0.0
@@ -64,6 +67,7 @@ func _on_bpm(bpm: int, _source: String) -> void:
 	_last_sample_msec = Time.get_ticks_msec()
 	if sample_count == 1:
 		filtered_hr = b
+	music_hr = b if music_hr <= 0.0 else lerpf(music_hr, b, C.MUSIC_HR_SMOOTH)
 	if collecting_baseline:
 		_baseline_samples.append(b)
 

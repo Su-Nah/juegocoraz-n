@@ -9,6 +9,7 @@ extends Node2D
 
 const C := preload("res://scripts/core/Config.gd")
 const DangoData := preload("res://scripts/core/DangoData.gd")
+const Coach := preload("res://scripts/game/Coach.gd")
 
 enum Mode { TITLE, RITUAL, PLAY, RESULTS }
 
@@ -39,9 +40,12 @@ var _enfasis_t := 0.0
 var _finishing := false
 var _progress_t := 0.0         # tiempo sin progreso (para la ayuda contextual)
 var _mood_vals := {}
+var coach: RefCounted
+var _balls_placed := 0
 
 func _ready() -> void:
 	randomize()
+	coach = Coach.new(self)
 	ingredientes = get_tree().get_nodes_in_group("ingrediente")
 	clientela.ingredientes = ingredientes
 	manos.bandeja = bandeja
@@ -61,9 +65,14 @@ func _ready() -> void:
 	clientela.maullido.connect(func(u): Sfx.play_variation("meow_urgent" if u else "meow"))
 	companero.left.connect(func(_c, r): if r == "served": _on_mochi_served())
 	manos.accion.connect(_on_player_action)
-	manos.bola_puesta.connect(func(_id): Sfx.play("pop", -10.0, randf_range(0.95, 1.1)); _progress_t = 0.0)
-	manos.salsa_puesta.connect(func(): Sfx.play("pop", -12.0, 0.7); _progress_t = 0.0)
-	manos.entregado.connect(func(_c): _progress_t = 0.0)
+	manos.bola_puesta.connect(func(_id):
+		Sfx.play("pop", -10.0, randf_range(0.95, 1.1))
+		_progress_t = 0.0
+		_balls_placed += 1
+		if _balls_placed >= 2:
+			coach.learn("bola"))
+	manos.salsa_puesta.connect(func(): Sfx.play("pop", -12.0, 0.7); _progress_t = 0.0; coach.learn("salsa"))
+	manos.entregado.connect(func(_c): _progress_t = 0.0; coach.learn("entregar"))
 	manos.descartado.connect(_on_discard)
 	manos.recogido.connect(func(_i): Sfx.play("tuk", -10.0); stability.stats["objects_restored"] += 1)
 	for ing in ingredientes:
@@ -80,6 +89,12 @@ func _ready() -> void:
 		get_tree().paused = false
 		_show_title())
 	ui.reintentar.connect(_start_ritual)
+	ui.saltar_tutorial.connect(func():
+		coach.skipped = true
+		if mode == Mode.RITUAL and companero.is_active():
+			companero.setup_companero()
+			companero.pedido.visible = false
+		tutorial.ocultar())
 	ui.debug.game = self
 	_show_title()
 
@@ -116,23 +131,25 @@ func _start_ritual() -> void:
 	_set_faroles(0.0)
 	Physio.start_baseline()
 	music.start()
-	get_tree().create_timer(2.0).timeout.connect(func():
-		if mode == Mode.RITUAL:
-			companero.pedir(DangoData.traditional(true)))
+	coach.reset()
+	ui.set_modo_juego(true)      # Mochi pide su dango en la etapa B del Coach
 
 func _on_mochi_served() -> void:
 	Sfx.play("coin", -14.0)
 	if mode == Mode.RITUAL:
 		_ritual_served += 1
 		tutorial.ocultar()
-		# Otro dango tranquilo, sin guía (solo si se atasca).
+		# Otro dango de práctica SOLO mientras dura la línea base (después no hay pedidos nuevos).
 		get_tree().create_timer(3.0).timeout.connect(func():
-			if mode == Mode.RITUAL and not companero.is_active():
+			if mode == Mode.RITUAL and not companero.is_active() and coach.stage == "listo" \
+					and coach.may_order_more(_ritual_t >= C.BASELINE_SECONDS):
 				companero.pedir(DangoData.random_order(1)))
 
 func _start_play() -> void:
 	mode = Mode.PLAY
 	tutorial.ocultar()
+	ui.ocultar_guia()
+	ui.set_modo_juego(false)
 	if companero.is_active():
 		companero.setup_companero()
 		companero.pedido.visible = false
@@ -179,6 +196,7 @@ func _on_regulacion() -> void:
 		Sfx.play("chime", -8.0)
 		_enfasis_t = C.PAUSE_DURATION + 2.0
 		companero.acompanar_regulacion(C.PAUSE_DURATION + 1.0)
+		coach.on_regulation()
 
 # ======================================================================= INPUT
 func _unhandled_input(event: InputEvent) -> void:
@@ -236,14 +254,9 @@ func _update_ritual(dt: float) -> void:
 		_ritual_t += dt
 	_set_faroles(clampf(_ritual_t / C.BASELINE_SECONDS, 0.0, 1.0))
 	stability.tick(dt, 0, 0)
-	if companero.is_active():
-		_progress_t += dt
-		if _ritual_served == 0 or _progress_t > C.TUTORIAL_HINT_IDLE:
-			tutorial.guiar(companero.order, companero, manos)
-		else:
-			tutorial.ocultar()
-	var enough: bool = _ritual_t >= C.BASELINE_SECONDS and (_ritual_served > 0 or _ritual_t >= C.RITUAL_MAX_SECONDS)
-	if enough and not manos.is_dragging() and Physio.finish_baseline():
+	coach.update_ritual(dt)
+	# El tiempo de línea base NO corta nada: se abre cuando no hay pedido en curso.
+	if coach.ritual_done(_ritual_t >= C.BASELINE_SECONDS) and Physio.finish_baseline():
 		_start_play()
 
 func _update_play(dt: float) -> void:
@@ -257,6 +270,7 @@ func _update_play(dt: float) -> void:
 	stability.tick(dt, active_stimuli(), director.pressure_level)
 	ui.set_sin_senal(HeartRate.active_source == "web" and not Physio.signal_ok)
 	_update_contextual_help(dt)
+	coach.update_play(dt)
 	if _finishing and clientela.cats().is_empty():
 		_show_results()
 
@@ -350,3 +364,4 @@ func _update_heartbeat(dt: float) -> void:
 		_beat_acc = 0.0
 		# Solo la gota visual: la melodía de campanas ("plim") quedó desactivada.
 		agua.emit_drop()
+		ui.pulso.beat()

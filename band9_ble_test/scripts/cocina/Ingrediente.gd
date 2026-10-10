@@ -29,8 +29,23 @@ var _t := 0.0
 
 @onready var _visual: Node2D = $Visual
 
+const Simbolo := preload("res://scripts/dango/SimboloIngrediente.gd")
+const ESCALA := 1.2          # más grande para proyector / baja visión
+var _hover := false
+
 func _ready() -> void:
 	_refresh()
+	if not Engine.is_editor_hint():
+		scale = Vector2.ONE * ESCALA
+		var s := Simbolo.new()
+		s.id = ingredient_id
+		s.size = 15.0
+		s.position = Vector2(0, -14)
+		s.z_index = 1
+		_visual.add_child(s)
+
+func set_hover(on: bool) -> void:
+	_hover = on
 
 func _refresh() -> void:
 	if not is_node_ready():
@@ -95,6 +110,7 @@ func _process(dt: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	_t += dt
+	_visual.scale = _visual.scale.move_toward(Vector2.ONE * (1.12 if _hover and state == "listo" else 1.0), dt * 2.0)
 	cooldown = maxf(0.0, cooldown - dt)
 	if state == "suelo":
 		_suelo_t += dt

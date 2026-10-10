@@ -12,7 +12,16 @@ const PALETTE := preload("res://resources/dango_paleta.tres")
 
 @onready var _bola: Sprite2D = $Bola
 
+const Simbolo := preload("res://scripts/dango/SimboloIngrediente.gd")
+## Color más contrastado (multiplica la textura). Edita en el Inspector.
+const TINTE := {"verde": Color(0.62, 1.0, 0.55), "blanca": Color(1, 1, 1), "rosa": Color(1.0, 0.62, 0.8)}
+var _simbolo: Node2D
+
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		_simbolo = Simbolo.new()
+		_simbolo.size = 12.0
+		add_child(_simbolo)
 	_refresh()
 
 func _refresh() -> void:
@@ -20,6 +29,9 @@ func _refresh() -> void:
 		return
 	visible = color_id != ""
 	_bola.texture = PALETTE.texture_for(color_id)
+	_bola.self_modulate = TINTE.get(color_id, Color.WHITE)
+	if _simbolo:
+		_simbolo.id = color_id
 
 ## Pequeño "pop" al colocarla (feedback inmediato).
 func pop() -> void:

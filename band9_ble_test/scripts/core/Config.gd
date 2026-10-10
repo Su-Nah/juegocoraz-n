@@ -7,6 +7,7 @@ extends RefCounted
 const HR_MIN := 35.0
 const HR_MAX := 220.0
 const HR_GLITCH_JUMP := 35.0          # salto (BPM) que se considera lectura errónea si es aislado
+const MUSIC_HR_SMOOTH := 0.6          # 0..1 peso de cada lectura nueva en el BPM musical (1 = sin filtro)
 const FILTER_TAU := 3.0               # s; constante de tiempo del filtro exponencial
 const SIGNAL_TIMEOUT := 12.0          # s sin lecturas = señal perdida
 
